@@ -126,26 +126,9 @@ python main.py
 
 ## 🧠 TAO Cycle Architecture Diagram
 
-```mermaid
-flowchart TD
-    A[🎤 Microphone Input] --> B[Observation Phase: Speech-to-Text (Whisper)]
-    B --> C[Thought Phase: Intent Detection (Zero-Shot)]
-    C --> D[Dialogue Manager: Graph Traversal]
-    D --> E{Needs Knowledge?}
-    E -- Yes --> F[FAQ Retriever: Text Matching]
-    E -- No --> G
-    F --> G[Response Generator: Template + Ollama LLM + History]
-    G --> H[Action Phase: Text-to-Speech (pyttsx3)]
-    H --> I[🔊 Spoken Output]
-```
+The following diagram illustrates the full TAO architecture:
 
----
-
-## 🗂️ Full System UML Diagram
-
-The following UML diagram shows the full architecture, including all modules and internal dependencies:
-
-![UML Diagram](imgs/uml.png)
+![TAO Cycle Diagram](imgs/uml.png)
 
 ---
 

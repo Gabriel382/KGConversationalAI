@@ -1,0 +1,10 @@
+{
+    "greet": "Say hello and offer help.",
+    "ask_information": "Ask the user what information they need.",
+    "book_meeting": "Politely ask the user to provide a date and time for their meeting. Do not invent or suggest any dates or times yourself.",
+    "confirm_booking": "Confirm the meeting that the user scheduled.",
+    "cancel": "Acknowledge the cancellation politely.",
+    "goodbye": "Say goodbye and wish the user a good day.",
+    "unknown": "Politely ask the user to clarify their request."
+  }
+  

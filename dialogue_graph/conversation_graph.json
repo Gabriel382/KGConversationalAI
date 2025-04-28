@@ -1,0 +1,20 @@
+{
+    "start": {
+      "greet": "ask_information",
+      "book_meeting": "book_meeting",
+      "goodbye": "end"
+    },
+    "ask_information": {
+      "ask_information": "provide_information",
+      "goodbye": "end"
+    },
+    "book_meeting": {
+      "confirm_booking": "end",
+      "goodbye": "end"
+    },
+    "provide_information": {
+      "goodbye": "end"
+    },
+    "end": {}
+  }
+  

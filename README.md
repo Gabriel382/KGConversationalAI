@@ -1,101 +1,169 @@
 # 🎤🧠🔊 Graph-Driven Voice Agent with TAO Cycle
 
-This project implements a **voice-controlled conversational agent** based on the **Thought-Action-Observation (TAO) Cycle**.  
-It follows a modular architecture where **speech input** is converted to **text**, analyzed through a **graph-controlled dialogue manager**, and replied through **speech synthesis**.
+_A modular, fully local conversational AI system following the Thought-Action-Observation cycle._
 
-The agent is designed to simulate realistic **phone call interactions** using **controlled dialogue flows**, **intent detection**, and optional **knowledge retrieval**.
+[![Python Version](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Ollama](https://img.shields.io/badge/LLM-Ollama-green)](https://ollama.com/)
+[![Whisper](https://img.shields.io/badge/ASR-Whisper-lightgrey)](https://github.com/openai/whisper)
+[![Transformers](https://img.shields.io/badge/NLU-Transformers-blue)](https://huggingface.co/)
 
 ---
 
-## 🛠️ Project Structure
+**Graph-Driven Voice Agent** is a voice-controlled conversational agent that follows the **Thought-Action-Observation (TAO) Cycle**.  
+It uses **local speech-to-text**, **intent detection**, **graph-based dialogue management**, **optional FAQ retrieval**, and **LLM-driven response generation** — all running **entirely offline**.
+
+Designed to simulate realistic **phone call interactions** through **modular components**.
+
+---
+
+## 📂 Project Structure
 
 ```
 graph_voice_agent/
 ├── main.py                  # Runs the full TAO cycle
-├── observation/             # Modules for capturing user input
+├── observation/              # Captures and processes user speech
 │   └── speech_to_text.py
-├── thought/                 # Modules for reasoning and planning
+├── thought/                  # Reasoning, planning, and decision-making
 │   ├── intent_detector.py
 │   ├── dialogue_manager.py
 │   ├── faq_retriever.py
 │   └── response_generator.py
-├── action/                  # Modules for acting in the environment
+├── action/                   # Acting back into the environment
 │   └── text_to_speech.py
-├── dialogue_graph/          # Conversation flow definition
-│   └── conversation_graph.json
+├── dialogue_graph/           # Dialogue and template definitions
+│   ├── conversation_graph.json
+│   ├── faq.json
+│   └── templates.json
 ├── utils/
 │   └── logger.py
-├── requirements.txt         # Project dependencies
-├── LICENSE         # Project license
-└── README.md
+├── imgs/                     # Project diagrams and images
+│   └── uml.png
+├── requirements.txt          # Project dependencies
+├── LICENSE                   # Project license
+└── README.md                 # Project documentation
 ```
 
 ---
 
 ## 🔥 Key Features
 
-- **TAO Architecture**: Thought-Action-Observation cycle design for intelligent agent behavior.
-- **Automatic Speech Recognition (ASR)**: Convert user speech to text (Observation).
-- **Natural Language Understanding (NLU)**: Detect intents from user utterances (Thought).
-- **Graph-Based Dialogue Manager**: Control dialogue flow with minimal hallucination (Thought).
-- **Knowledge Retrieval (Optional)**: Query simple knowledge bases during conversation (Thought).
-- **Natural Language Generation (NLG)**: Create text responses from structured intents (Thought).
-- **Text-to-Speech (TTS)**: Generate and play spoken responses (Action).
+- **TAO Cycle**: Structured into Observation → Thought → Action phases.
+- **Speech-to-Text**: Real-time voice transcription using OpenAI Whisper (locally).
+- **Intent Detection**: Zero-shot classification with Hugging Face Transformers.
+- **Graph-Based Dialogue Manager**: Control conversation flow via JSON graph.
+- **FAQ Retrieval**: Optional, using zero-shot matching over a knowledge base.
+- **Natural Language Generation**: Smart responses using Ollama and LLaMA 3 locally.
+- **Text-to-Speech**: Voice output via pyttsx3 (offline).
+- **Fully Offline Operation**: No paid APIs required.
 
 ---
 
 ## 🧩 Technologies Used
 
-- **ASR**: Whisper (small model) / AssemblyAI / SpeechRecognition
-- **NLU**: Hugging Face zero-shot pipeline (`distilbert-base-uncased`)
-- **Graph Control**: NetworkX (or custom lightweight graph engine)
-- **NLG**: Template-based or lightweight GPT generation
-- **TTS**: pyttsx3 / CoquiTTS / Google Text-to-Speech
-- **Python 3.10+**
+| Category | Technology |
+|:---------|:------------|
+| ASR (Speech Recognition) | [Whisper](https://github.com/openai/whisper) |
+| NLU (Intent Detection) | [Transformers](https://huggingface.co/) |
+| NLG (Response Generation) | [Ollama](https://ollama.com/) (LLaMA 3) |
+| Graph Traversal | Custom JSON-based dialogue manager |
+| TTS (Speech Output) | [pyttsx3](https://pyttsx3.readthedocs.io/en/latest/) |
+| Programming Language | Python 3.10+ |
 
 ---
 
-## 🚀 How to Run
+## 🚀 Getting Started
 
-1. Install dependencies:
+### 1. Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 2. Set up Whisper
+
+```bash
+pip install openai-whisper
+pip install sounddevice numpy scipy
+```
+
+### 3. Set up Transformers (Intent Detection)
+
+```bash
+pip install transformers
+```
+
+### 4. (Optional) Create Virtual Environment
+
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: .\venv\Scripts\activate
+```
+
+### 5. Set up Ollama (Local LLM Engine)
+
+- Download and install Ollama from [official website](https://ollama.com/).
+- Pull the LLaMA 3 model:
     ```bash
-    pip install -r requirements.txt
+    ollama pull llama3
+    ```
+- Start the Ollama server:
+    ```bash
+    ollama serve
     ```
 
-2. Run the main agent:
-    ```bash
-    python main.py
-    ```
+> Ollama API will run locally at `http://localhost:11434`. Keep it running during agent execution.
 
-3. Speak when prompted, and listen to the intelligent reply!
+### 6. Run the Voice Agent
+
+```bash
+python main.py
+```
+
+✅ Speak when prompted, and the system will respond intelligently through speech.
 
 ---
 
-## 🧠 Thought-Action-Observation Cycle
+## 🧠 TAO Cycle Architecture Diagram
 
-| Phase         | Description |
-|---------------|-------------|
-| **Observation** | Capture user speech and recognize text |
-| **Thought** | Analyze text, detect intent, plan next move using graph |
-| **Action** | Generate spoken response |
+```mermaid
+flowchart TD
+    A[🎤 Microphone Input] --> B[Observation Phase: Speech-to-Text (Whisper)]
+    B --> C[Thought Phase: Intent Detection (Zero-Shot)]
+    C --> D[Dialogue Manager: Graph Traversal]
+    D --> E{Needs Knowledge?}
+    E -- Yes --> F[FAQ Retriever: Text Matching]
+    E -- No --> G
+    F --> G[Response Generator: Template + Ollama LLM + History]
+    G --> H[Action Phase: Text-to-Speech (pyttsx3)]
+    H --> I[🔊 Spoken Output]
+```
+
+---
+
+## 🗂️ Full System UML Diagram
+
+The following UML diagram shows the full architecture, including all modules and internal dependencies:
+
+![UML Diagram](imgs/uml.png)
 
 ---
 
 ## 🌟 Future Improvements
 
-- GUI Interface (Streamlit, Flask, or Gradio)
-- More complex dynamic conversation graphs
-- Real-time Knowledge Retrieval using APIs
-- Fine-tuned LLMs for more natural NLG
+- 🌐 Add a simple GUI (Streamlit / Gradio)
+- 🧠 Dynamic dialogue graph updates
+- 🗣️ Multi-language support (templates and FAQs)
+- 🔍 Real-time external knowledge fetching
+- 🧠 Fine-tuning lightweight local LLMs
+- 💾 Session memory persistence
 
 ---
 
-## 📚 Credits & License
+## 📚 License
 
-Inspired by the architecture of **real-world dialogue agents**. **MIT License**.
+Distributed under the **MIT License**. See [LICENSE](LICENSE) for more information.
 
-Developed by: Gabriel Henrique Alencar Medeiros
-
-
+Developed by **Gabriel Henrique Alencar Medeiros**.
 
 ---

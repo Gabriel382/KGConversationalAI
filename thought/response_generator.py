@@ -1,85 +1,88 @@
-# thought/response_generator.py
-
-import requests
 import json
 
-# Load templates once
+# Load templates once at the top
 with open("dialogue_graph/templates.json", "r", encoding="utf-8") as f:
     templates = json.load(f)
 
-
-def call_ollama(prompt, model="llama3", max_tokens=200, temperature=0.3):
+def generate_response(history, intent, action_node, knowledge, llm_generator=None, model=None):
     """
-    Sends a prompt to the local Ollama server and returns the generated text.
+    Generate a response using an LLMGenerator, or fallback to templates.
 
     Args:
-        prompt (str): Prompt to send.
-        model (str): Model name in Ollama (e.g., 'llama3', 'mistral', etc.)
-        max_tokens (int): Max number of tokens to generate.
-        temperature (float): Sampling temperature.
+        history (list): Conversation history [(speaker, text), ...].
+        intent (str): User's detected intent.
+        action_node (ActionNode): Dialogue manager result (with next_state).
+        knowledge (str, optional): FAQ result or external info.
+        llm_generator (LLMGenerator, optional): Generator instance.
+        model (str, optional): Model name (e.g. 'llama3', 'deepseek/...').
 
     Returns:
-        str: Generated text from the model.
+        str: Generated response or fallback answer.
     """
-    try:
-        url = "http://localhost:11434/api/generate"
-        payload = {
-            "model": model,
-            "prompt": prompt,
-            "temperature": temperature,
-            "max_tokens": max_tokens,
-            "stream": False
-        }
-        response = requests.post(url, json=payload)
-        response.raise_for_status()
-        data = response.json()
-        
-        return data.get('response', "").strip()
-
-    except Exception as e:
-        print(f"⚠️ Ollama API error: {e}")
-        return "I'm sorry, I'm having trouble generating a response right now."
-
-
-def generate_response(history, intent, action_node, knowledge, model=None):
-    """
-    Generate a response using Ollama if model is specified, else fallback to simple templates.
-
-    Args:
-        history (list): Conversation history.
-        intent (str): Detected intent.
-        action_node (ActionNode): Result of dialogue manager.
-        knowledge (str, optional): Retrieved FAQ answer.
-        model (str, optional): Model name for Ollama (e.g., 'llama3'). If None, use simple generation.
-
-    Returns:
-        str: Final response.
-    """
-
-    # If no model is provided, use fallback simple responses
-    if model is None:
+    if llm_generator is None:
         if knowledge:
             return knowledge
         return templates.get(intent, "I'm here to assist you!")
 
-    # Otherwise, use Ollama to generate a smarter response
-    # Build history text
-    history_text = ""
-    for speaker, text in history[-6:]:  # Limit history to last 6 exchanges
-        history_text += f"{speaker}: {text}\n"
-
+    # Template instruction
     instruction = templates.get(intent, "Assist the user politely.")
-
-    knowledge_text = f"Use this information if needed: {knowledge}\n" if knowledge else ""
-
-    # Compose the prompt
-    prompt = (
-        f"You are a helpful voice assistant.\n"
-        f"Instruction: {instruction}\n"
-        f"{knowledge_text}\n"
-        f"Conversation so far:\n"
-        f"{history_text}"
-        f"Now continue as the Agent:"
-    )
+    next_state_note = f"You are now moving to the dialogue state: '{action_node.next_state}'."
+    knowledge_text = f"Use this information if needed: {knowledge}" if knowledge else ""
     
-    return call_ollama(prompt, model=model)
+    # Chat-format model: use role-based message list
+    if llm_generator.chat_format:
+        messages = [
+            {
+                "role": "system",
+                "content": (
+                    "You are a helpful and concise English-speaking voice assistant. "
+                    "Always respond briefly and naturally in English. "
+                    "Do not use code formatting, document outlines, or markdown."
+                )
+            }
+        ]
+
+        # Include conversation history (optional, last 6 exchanges)
+        for speaker, text in history[-6:]:
+            role = "user" if speaker.lower() == "user" else "assistant"
+            messages.append({"role": role, "content": text})
+
+        # Build a natural prompt for the LLM
+        instruction = templates.get(intent, "Assist the user politely.")
+        knowledge_text = f"Here's some useful example: {knowledge}" if knowledge else ""
+
+        user_prompt = (
+            f"The user would like to {intent.replace('_', ' ')}.\n"
+            f"{instruction}\n"
+            f"{knowledge_text}\n"
+            f"Now, give me as output what would be a good assistant reply."
+        ).strip()
+
+        messages.append({"role": "user", "content": user_prompt})
+
+        #print("📥 Prompt to LLM (chat format):", messages)
+
+        # Generate and return response
+        response = llm_generator.generate(messages, model=model)
+
+        if not response.strip():
+            print("⚠️ Empty LLM response, using fallback template.")
+            return knowledge or templates.get(intent, "I'm here to assist you!")
+
+        return response
+
+
+
+    # Prompt-based model: use full instruction string
+    else:
+        history_text = "\n".join(f"{speaker}: {text}" for speaker, text in history[-6:])
+        prompt = (
+            f"You are a helpful voice assistant.\n"
+            f"Always reply in short, natural English sentences.\n"
+            f"Intent detected: {intent}\n"
+            f"{next_state_note}\n"
+            f"{knowledge_text}\n"
+            f"Conversation history:\n{history_text}\n"
+            f"Now continue as the Agent."
+        )
+        return llm_generator.generate(prompt, model=model)

@@ -1,20 +1,26 @@
 {
-    "start": {
-      "greet": "ask_information",
-      "book_meeting": "book_meeting",
-      "goodbye": "end"
-    },
-    "ask_information": {
-      "ask_information": "provide_information",
-      "goodbye": "end"
-    },
-    "book_meeting": {
-      "confirm_booking": "end",
-      "goodbye": "end"
-    },
-    "provide_information": {
-      "goodbye": "end"
-    },
-    "end": {}
-  }
-  
+  "start": {
+    "greet": "ask_information",
+    "book_meeting": "book_meeting",
+    "goodbye": "end"
+  },
+  "ask_information": {
+    "ask_information": "provide_information",
+    "cancel": "cancel",
+    "goodbye": "end"
+  },
+  "book_meeting": {
+    "confirm_booking": "end",
+    "cancel": "cancel",
+    "goodbye": "end"
+  },
+  "provide_information": {
+    "cancel": "cancel",
+    "goodbye": "end"
+  },
+  "cancel": {
+    "cancel": "end",
+    "goodbye": "end"
+  },
+  "end": {}
+}

@@ -1,14 +1,25 @@
 {
-    "ask_information": {
-      "what_are_your_opening_hours": "We are open from 9 AM to 6 PM, Monday to Friday.",
-      "where_are_you_located": "We are located in downtown Paris, close to the main station."
-    },
-    "book_meeting": {
-      "how_to_book_an_appointment": "You can book an appointment by providing your preferred date and time.",
-      "can_i_schedule_a_meeting": "Sure! Tell me your preferred date and time."
-    },
-    "cancel": {
-      "what_is_the_cancel_policy": "Appointments can be cancelled up to 24 hours in advance without any charge."
-    }
+  "ask_information": {
+    "what_are_your_opening_hours": "We are open from 9 AM to 6 PM, Monday to Friday.",
+    "where_are_you_located": "We are located in downtown Paris, close to the main station."
+  },
+  "book_meeting": {
+    "how_to_book_an_appointment": "You can book an appointment by providing your preferred date and time.",
+    "can_i_schedule_a_meeting": "Sure! Tell me your preferred date and time."
+  },
+  "cancel": {
+    "what_is_the_cancel_policy": "Appointments can be cancelled up to 24 hours in advance without any charge."
+  },
+  "confirm_booking": {
+    "confirm_the_booking": "Great! I've confirmed your appointment."
+  },
+  "end": {
+    "end_the_call": "Thank you for calling. Have a great day!"
+  },
+  "greet": {
+    "say_hello": "Hello! How can I assist you today?"
+  },
+  "provide_information": {
+    "providing_information_acknowledgement": "Sure! Here’s the information you asked for."
   }
-  
+}

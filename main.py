@@ -24,11 +24,10 @@ args = parser.parse_args()
 if args.mode == "api":
     with open("secrets/apikey.json", "r") as f:
         api_key = json.load(f)["api_key"]
-    llm_generator = OpenRouterAPILLMGenerator(api_key=api_key, default_model="deepseek/deepseek-r1-zero:free")
-    model_name = "deepseek/deepseek-v3-base:free"
+    llm_generator = OpenRouterAPILLMGenerator(api_key=api_key, default_model="deepseek/deepseek-r1-zero:free",
+                                              model_name = "deepseek/deepseek-v3-base:free")
 else:
-    llm_generator = OllamaLLMGenerator()
-    model_name = "llama3"
+    llm_generator = OllamaLLMGenerator(model_name = "llama3")
 
 # === Shared Components ===
 classifier = LLMClassifier()

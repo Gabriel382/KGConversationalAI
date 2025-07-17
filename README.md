@@ -143,6 +143,12 @@ The following diagram illustrates the full TAO architecture:
 
 ---
 
+## 📬 Contact
+
+If you have any questions or want to reach out to the team, please send me an email at [henrique382@gmail.com](henrique382@gmail.com).
+
+---
+
 ## 📚 License
 
 Distributed under the **MIT License**. See [LICENSE](LICENSE) for more information.

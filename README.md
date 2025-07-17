@@ -143,11 +143,6 @@ The following diagram illustrates the full TAO architecture:
 
 ---
 
-## 📬 Contact
-
-If you have any questions or want to reach out to the team, please send me an email at [henrique382@gmail.com](henrique382@gmail.com).
-
----
 ## 📖 References
 
    1. Yin, M., Roccabruna, G., Azad, A., & Riccardi, G. (2023). Let's Give a Voice to Conversational Agents in Virtual Reality. arXiv. [https://doi.org/10.48550/arXiv.2308.02665](https://doi.org/10.48550/arXiv.2308.02665)
@@ -157,6 +152,10 @@ If you have any questions or want to reach out to the team, please send me an em
    5. Li, G., Al Kader Hammoud, H. A., Itani, H., Khizbullin, D., & Ghanem, B. (2023). CAMEL: communicative agents for "mind" exploration of large language model society. In Proceedings of the 37th International Conference on Neural Information Processing Systems (Article 2264, pp. 1–18). Curran Associates Inc.
 
 ---
+
+## 📬 Contact
+
+If you have any questions or want to reach out to the team, please send me an email at [henrique382@gmail.com](henrique382@gmail.com).
 
 ## 📚 License
 

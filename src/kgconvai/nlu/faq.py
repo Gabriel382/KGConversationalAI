@@ -19,8 +19,17 @@ class FAQStore:
 
     @classmethod
     def from_path(cls, path: str | Path) -> FAQStore:
+        """Load from JSON. Accepts the legacy nested format
+        ``{intent: {question: answer}}`` or the canonical KGData JSON
+        (autodetected by a ``faqs`` array)."""
         with Path(path).open(encoding="utf-8") as f:
-            return cls(json.load(f))
+            raw = json.load(f)
+        if isinstance(raw, dict) and "faqs" in raw and isinstance(raw["faqs"], list):
+            data: dict[str, dict[str, str]] = {}
+            for entry in raw["faqs"]:
+                data.setdefault(entry["intent"], {})[entry["question"]] = entry["answer"]
+            return cls(data)
+        return cls(raw)
 
     def intents(self) -> list[str]:
         return list(self._data.keys())

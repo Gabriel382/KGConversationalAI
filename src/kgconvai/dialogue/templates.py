@@ -21,8 +21,18 @@ class TemplateStore:
 
     @classmethod
     def from_path(cls, path: str | Path) -> TemplateStore:
+        """Load from JSON. Accepts the legacy flat ``{intent: text}`` format
+        or the canonical KGData JSON (autodetected by a ``templates`` array)."""
         with Path(path).open(encoding="utf-8") as f:
-            return cls(json.load(f))
+            raw = json.load(f)
+        if isinstance(raw, dict) and "templates" in raw and isinstance(raw["templates"], list):
+            mapping: dict[str, str] = {}
+            for t in raw["templates"]:
+                intent = t["intent"]
+                if intent not in mapping or t.get("locale") == "en":
+                    mapping[intent] = t["text"]
+            return cls(mapping)
+        return cls(raw)
 
     def instruction_for(self, intent: str) -> str:
         return self._templates.get(intent, "Assist the user politely.")

@@ -1,15 +1,52 @@
-# Local development stack for kgconvai's Neo4j backend.
-# Spin up with:    docker-compose -f docker/docker-compose.yml up -d
-# Neo4j Browser:   http://localhost:7474   (login: neo4j / kgconvai)
-# Bolt endpoint:   bolt://localhost:7687
+# Full local dev stack: Gradio chat UI + Streamlit admin + Neo4j.
+#
+# All-in:   docker compose -f docker/docker-compose.yml up -d
+# Chat:     http://localhost:7860
+# Admin:    http://localhost:8501
+# Neo4j:    http://localhost:7474   (login: neo4j / kgconvai)
+#
+# To use Neo4j as the KG backend from the app, set in the chat service env:
+#   KGCONVAI_NEO4J_URI=bolt://neo4j:7687
+#   KGCONVAI_NEO4J_PASSWORD=kgconvai
 
 services:
+  chat:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    image: kgconvai:latest
+    container_name: kgconvai-chat
+    ports:
+      - "7860:7860"
+    environment:
+      KGCONVAI_LLM_MODE: template
+    depends_on:
+      - neo4j
+
+  admin:
+    image: kgconvai:latest
+    container_name: kgconvai-admin
+    command:
+      - python
+      - -m
+      - kgconvai
+      - web
+      - admin
+      - --port
+      - "8501"
+    ports:
+      - "8501:8501"
+    volumes:
+      - ../dialogue_graph:/app/dialogue_graph
+    depends_on:
+      - chat
+
   neo4j:
     image: neo4j:5-community
     container_name: kgconvai-neo4j
     ports:
-      - "7474:7474"   # HTTP / Browser
-      - "7687:7687"   # Bolt
+      - "7474:7474"
+      - "7687:7687"
     environment:
       NEO4J_AUTH: neo4j/kgconvai
       NEO4J_PLUGINS: '["apoc"]'

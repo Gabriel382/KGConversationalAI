@@ -1,0 +1,21 @@
+# Normalize line endings: store everything LF in the repo,
+# checkout LF on Linux/macOS, CRLF on Windows by default.
+* text=auto eol=lf
+
+# Explicit binary types (don't touch their bytes)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+
+# Python and config files: enforce LF
+*.py     text eol=lf
+*.json   text eol=lf
+*.md     text eol=lf
+*.txt    text eol=lf
+*.yml    text eol=lf
+*.yaml   text eol=lf
+*.toml   text eol=lf

@@ -1,0 +1,249 @@
+{
+  "entities": [],
+  "faqs": [
+    {
+      "answer": "We are open from 9 AM to 6 PM, Monday to Friday.",
+      "examples": [],
+      "id": "ask_information__what_are_your_opening_hours",
+      "intent": "ask_information",
+      "question": "what are your opening hours"
+    },
+    {
+      "answer": "We are located in downtown Paris, close to the main station.",
+      "examples": [],
+      "id": "ask_information__where_are_you_located",
+      "intent": "ask_information",
+      "question": "where are you located"
+    },
+    {
+      "answer": "Sure! Tell me your preferred date and time.",
+      "examples": [],
+      "id": "book_meeting__can_i_schedule_a_meeting",
+      "intent": "book_meeting",
+      "question": "can i schedule a meeting"
+    },
+    {
+      "answer": "You can book an appointment by providing your preferred date and time.",
+      "examples": [],
+      "id": "book_meeting__how_to_book_an_appointment",
+      "intent": "book_meeting",
+      "question": "how to book an appointment"
+    },
+    {
+      "answer": "Appointments can be cancelled up to 24 hours in advance without any charge.",
+      "examples": [],
+      "id": "cancel__what_is_the_cancel_policy",
+      "intent": "cancel",
+      "question": "what is the cancel policy"
+    },
+    {
+      "answer": "Great! I've confirmed your appointment.",
+      "examples": [],
+      "id": "confirm_booking__confirm_the_booking",
+      "intent": "confirm_booking",
+      "question": "confirm the booking"
+    },
+    {
+      "answer": "Thank you for calling. Have a great day!",
+      "examples": [],
+      "id": "end__end_the_call",
+      "intent": "end",
+      "question": "end the call"
+    },
+    {
+      "answer": "Hello! How can I assist you today?",
+      "examples": [],
+      "id": "greet__say_hello",
+      "intent": "greet",
+      "question": "say hello"
+    },
+    {
+      "answer": "Sure! Here’s the information you asked for.",
+      "examples": [],
+      "id": "provide_information__providing_information_acknowledgement",
+      "intent": "provide_information",
+      "question": "providing information acknowledgement"
+    }
+  ],
+  "intents": [
+    {
+      "examples": [],
+      "id": "ask_information"
+    },
+    {
+      "examples": [],
+      "id": "book_meeting"
+    },
+    {
+      "examples": [],
+      "id": "cancel"
+    },
+    {
+      "examples": [],
+      "id": "confirm_booking"
+    },
+    {
+      "examples": [],
+      "id": "end"
+    },
+    {
+      "examples": [],
+      "id": "goodbye"
+    },
+    {
+      "examples": [],
+      "id": "greet"
+    },
+    {
+      "examples": [],
+      "id": "provide_information"
+    },
+    {
+      "examples": [],
+      "id": "unknown"
+    }
+  ],
+  "metadata": {
+    "source": "migrated from legacy dialogue_graph/*.json",
+    "title": "Default phone-assistant dialogue graph"
+  },
+  "namespace": "http://kgconvai.local/data#",
+  "relations": [],
+  "states": [
+    {
+      "id": "ask_information",
+      "is_terminal": false,
+      "requires_knowledge": false
+    },
+    {
+      "id": "book_meeting",
+      "is_terminal": false,
+      "requires_knowledge": false
+    },
+    {
+      "id": "cancel",
+      "is_terminal": false,
+      "requires_knowledge": false
+    },
+    {
+      "id": "end",
+      "is_terminal": true,
+      "requires_knowledge": false
+    },
+    {
+      "id": "provide_information",
+      "is_terminal": false,
+      "requires_knowledge": true
+    },
+    {
+      "id": "start",
+      "is_terminal": false,
+      "requires_knowledge": false
+    }
+  ],
+  "templates": [
+    {
+      "intent": "ask_information",
+      "locale": "en",
+      "text": "Ask the user what information they need."
+    },
+    {
+      "intent": "book_meeting",
+      "locale": "en",
+      "text": "Politely ask the user to provide a date and time for their meeting. Do not invent or suggest any dates or times yourself."
+    },
+    {
+      "intent": "cancel",
+      "locale": "en",
+      "text": "Acknowledge the cancellation politely."
+    },
+    {
+      "intent": "confirm_booking",
+      "locale": "en",
+      "text": "Confirm the meeting that the user scheduled."
+    },
+    {
+      "intent": "goodbye",
+      "locale": "en",
+      "text": "Say goodbye and wish the user a good day."
+    },
+    {
+      "intent": "greet",
+      "locale": "en",
+      "text": "Say hello and offer help."
+    },
+    {
+      "intent": "unknown",
+      "locale": "en",
+      "text": "Politely ask the user to clarify their request."
+    }
+  ],
+  "transitions": [
+    {
+      "from": "ask_information",
+      "intent": "ask_information",
+      "to": "provide_information"
+    },
+    {
+      "from": "ask_information",
+      "intent": "cancel",
+      "to": "cancel"
+    },
+    {
+      "from": "ask_information",
+      "intent": "goodbye",
+      "to": "end"
+    },
+    {
+      "from": "book_meeting",
+      "intent": "cancel",
+      "to": "cancel"
+    },
+    {
+      "from": "book_meeting",
+      "intent": "confirm_booking",
+      "to": "end"
+    },
+    {
+      "from": "book_meeting",
+      "intent": "goodbye",
+      "to": "end"
+    },
+    {
+      "from": "cancel",
+      "intent": "cancel",
+      "to": "end"
+    },
+    {
+      "from": "cancel",
+      "intent": "goodbye",
+      "to": "end"
+    },
+    {
+      "from": "provide_information",
+      "intent": "cancel",
+      "to": "cancel"
+    },
+    {
+      "from": "provide_information",
+      "intent": "goodbye",
+      "to": "end"
+    },
+    {
+      "from": "start",
+      "intent": "book_meeting",
+      "to": "book_meeting"
+    },
+    {
+      "from": "start",
+      "intent": "goodbye",
+      "to": "end"
+    },
+    {
+      "from": "start",
+      "intent": "greet",
+      "to": "ask_information"
+    }
+  ],
+  "version": "1.0"
+}

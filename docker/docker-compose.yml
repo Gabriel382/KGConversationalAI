@@ -1,0 +1,23 @@
+# Local development stack for kgconvai's Neo4j backend.
+# Spin up with:    docker-compose -f docker/docker-compose.yml up -d
+# Neo4j Browser:   http://localhost:7474   (login: neo4j / kgconvai)
+# Bolt endpoint:   bolt://localhost:7687
+
+services:
+  neo4j:
+    image: neo4j:5-community
+    container_name: kgconvai-neo4j
+    ports:
+      - "7474:7474"   # HTTP / Browser
+      - "7687:7687"   # Bolt
+    environment:
+      NEO4J_AUTH: neo4j/kgconvai
+      NEO4J_PLUGINS: '["apoc"]'
+      NEO4J_dbms_security_procedures_unrestricted: "apoc.*"
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+
+volumes:
+  neo4j_data:
+  neo4j_logs:

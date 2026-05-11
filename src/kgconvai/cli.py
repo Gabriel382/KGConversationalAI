@@ -207,3 +207,53 @@ def kg_diff(
             console.print(f"[yellow]{section} differs[/] (a={la_n}, b={lb_n})")
     if not any_diff:
         console.print("[green]identical[/]")
+
+
+# -----------------------------------------------------------------------------
+# 'web' subcommand group: launch browser-based chat / admin
+# -----------------------------------------------------------------------------
+
+web_app = typer.Typer(help="Launch browser-based interfaces (Gradio / Streamlit).")
+app.add_typer(web_app, name="web")
+
+
+@web_app.command("chat")
+def web_chat(
+    data: Path = typer.Option(Path("dialogue_graph/kg.json"), help="Canonical KG JSON."),
+    mode: str = typer.Option("template", help="LLM mode: local | api | template."),
+    host: str = typer.Option("127.0.0.1", help="Host to bind."),
+    port: int = typer.Option(7860, help="Port to bind."),
+    share: bool = typer.Option(False, help="Create a public Gradio share link."),
+) -> None:
+    """Run the Gradio chat UI."""
+    from kgconvai.web.chat import build_chat
+
+    demo = build_chat(data, mode=mode)
+    demo.launch(server_name=host, server_port=port, share=share)
+
+
+@web_app.command("admin")
+def web_admin(
+    data: Path = typer.Option(Path("dialogue_graph/kg.json"), help="Canonical KG JSON."),
+    port: int = typer.Option(8501, help="Port to bind."),
+) -> None:
+    """Run the Streamlit admin panel (visual graph + section editors)."""
+    import os
+    import subprocess
+    import sys
+
+    env = {**os.environ, "KGCONVAI_DATA": str(data)}
+    admin_py = Path(__file__).parent / "web" / "admin.py"
+    cmd = [
+        sys.executable,
+        "-m",
+        "streamlit",
+        "run",
+        str(admin_py),
+        "--server.port",
+        str(port),
+        "--server.headless",
+        "true",
+    ]
+    console.print(f"[bold]Launching admin panel at[/] http://localhost:{port}")
+    subprocess.run(cmd, env=env, check=False)

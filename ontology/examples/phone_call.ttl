@@ -1,0 +1,65 @@
+@prefix kgc:  <http://kgconvai.org/core#> .
+@prefix pc:   <http://kgconvai.org/examples/phone-call#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+<http://kgconvai.org/examples/phone-call> a owl:Ontology ;
+    owl:imports <http://kgconvai.org/core> ;
+    rdfs:label "Phone-call assistant ontology" ;
+    rdfs:comment "Extends the core ontology with domain entities for a small-business phone receptionist." ;
+    owl:versionInfo "1.0" .
+
+#################################################################
+# Domain entities
+#################################################################
+
+pc:Caller a owl:Class ;
+    rdfs:label "Caller" ;
+    rdfs:comment "The human on the other end of the line." .
+
+pc:Service a owl:Class ;
+    rdfs:label "Service" ;
+    rdfs:comment "A bookable offering (e.g. consultation, repair)." .
+
+pc:Appointment a owl:Class ;
+    rdfs:label "Appointment" .
+
+pc:BusinessHours a owl:Class ;
+    rdfs:label "Business Hours" .
+
+#################################################################
+# Domain properties
+#################################################################
+
+pc:hasCaller a owl:ObjectProperty ;
+    rdfs:domain pc:Appointment ;
+    rdfs:range pc:Caller .
+
+pc:bookedFor a owl:ObjectProperty ;
+    rdfs:domain pc:Appointment ;
+    rdfs:range pc:Service .
+
+pc:scheduledAt a owl:DatatypeProperty ;
+    rdfs:domain pc:Appointment ;
+    rdfs:range xsd:dateTime .
+
+pc:opensAt a owl:DatatypeProperty ;
+    rdfs:domain pc:BusinessHours ;
+    rdfs:range xsd:time .
+
+pc:closesAt a owl:DatatypeProperty ;
+    rdfs:domain pc:BusinessHours ;
+    rdfs:range xsd:time .
+
+pc:dayOfWeek a owl:DatatypeProperty ;
+    rdfs:domain pc:BusinessHours ;
+    rdfs:range xsd:string .
+
+pc:phoneNumber a owl:DatatypeProperty ;
+    rdfs:domain pc:Caller ;
+    rdfs:range xsd:string .
+
+pc:fullName a owl:DatatypeProperty ;
+    rdfs:domain pc:Caller ;
+    rdfs:range xsd:string .

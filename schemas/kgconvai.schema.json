@@ -1,0 +1,159 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Gabriel382/KGConversationalAI/schemas/kgconvai.schema.json",
+  "title": "KGConvAI canonical knowledge graph",
+  "description": "Canonical JSON representation of a dialogue knowledge graph. Designed to round-trip losslessly to/from RDF (via the kgconvai core ontology) and to/from Neo4j property graphs.",
+  "type": "object",
+  "required": ["version", "states", "intents", "transitions", "faqs", "templates"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Schema version. Use semver MAJOR.MINOR (e.g. '1.0').",
+      "pattern": "^[0-9]+\\.[0-9]+$"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Free-form metadata: author, description, namespace IRI, etc.",
+      "additionalProperties": true
+    },
+    "namespace": {
+      "type": "string",
+      "format": "uri",
+      "description": "Base IRI used when serialising to RDF. Default: http://kgconvai.local/data#"
+    },
+    "states": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/State" },
+      "description": "Dialogue states (nodes in the state machine)."
+    },
+    "intents": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Intent" },
+      "description": "Possible user intents."
+    },
+    "transitions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Transition" },
+      "description": "Directed edges: (from_state, intent) -> to_state."
+    },
+    "faqs": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/FAQEntry" },
+      "description": "Question/answer pairs keyed by intent."
+    },
+    "templates": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Template" },
+      "description": "Response instruction templates per intent."
+    },
+    "entities": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Entity" },
+      "description": "Domain entities (Caller, Appointment, ...). Optional."
+    },
+    "relations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Relation" },
+      "description": "Domain relations between entities. Optional."
+    }
+  },
+  "$defs": {
+    "Identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+      "description": "Local identifier; combined with namespace to form a full IRI."
+    },
+    "State": {
+      "type": "object",
+      "required": ["id"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "$ref": "#/$defs/Identifier" },
+        "label": { "type": "string" },
+        "is_terminal": { "type": "boolean", "default": false },
+        "requires_knowledge": { "type": "boolean", "default": false },
+        "description": { "type": "string" }
+      }
+    },
+    "Intent": {
+      "type": "object",
+      "required": ["id"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "$ref": "#/$defs/Identifier" },
+        "label": { "type": "string" },
+        "description": { "type": "string" },
+        "examples": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Example utterances (used by embedding retrieval if desired)."
+        }
+      }
+    },
+    "Transition": {
+      "type": "object",
+      "required": ["from", "intent", "to"],
+      "additionalProperties": false,
+      "properties": {
+        "from": { "$ref": "#/$defs/Identifier" },
+        "intent": { "$ref": "#/$defs/Identifier" },
+        "to": { "$ref": "#/$defs/Identifier" },
+        "description": { "type": "string" }
+      }
+    },
+    "FAQEntry": {
+      "type": "object",
+      "required": ["id", "intent", "question", "answer"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "$ref": "#/$defs/Identifier" },
+        "intent": { "$ref": "#/$defs/Identifier" },
+        "question": { "type": "string" },
+        "answer": { "type": "string" },
+        "examples": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "Template": {
+      "type": "object",
+      "required": ["intent", "text"],
+      "additionalProperties": false,
+      "properties": {
+        "intent": { "$ref": "#/$defs/Identifier" },
+        "text": { "type": "string" },
+        "locale": { "type": "string", "default": "en" }
+      }
+    },
+    "Entity": {
+      "type": "object",
+      "required": ["id", "type"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "$ref": "#/$defs/Identifier" },
+        "type": {
+          "type": "string",
+          "description": "Class name from a domain ontology (e.g. 'Service', 'BusinessHours')."
+        },
+        "label": { "type": "string" },
+        "properties": {
+          "type": "object",
+          "description": "Literal datatype properties.",
+          "additionalProperties": { "type": ["string", "number", "boolean"] }
+        }
+      }
+    },
+    "Relation": {
+      "type": "object",
+      "required": ["from", "type", "to"],
+      "additionalProperties": false,
+      "properties": {
+        "from": { "$ref": "#/$defs/Identifier" },
+        "type": { "type": "string" },
+        "to": { "$ref": "#/$defs/Identifier" }
+      }
+    }
+  }
+}

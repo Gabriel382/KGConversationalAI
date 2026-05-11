@@ -1,7 +1,32 @@
-chatvenv/
-venv/
-.env/
-*.pyc
+# Python
 __pycache__/
-# Ignore API key file
-secrets/apikey.json
+*.pyc
+*.pyo
+*.egg-info/
+build/
+dist/
+
+# Test / lint caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Virtual environments
+venv/
+chatvenv/
+.venv/
+
+# Secrets / local config
+secrets/
+.env
+.env.*
+!.env.example
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

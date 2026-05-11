@@ -1,0 +1,16 @@
+# Runtime dependencies for kgconvai.
+# For the full install with voice + NLU support, prefer:
+#   pip install -e .[voice,nlu]
+# For development:
+#   pip install -e .[dev]
+#
+# This file lists only the always-needed base dependencies so that
+#   pip install -r requirements.txt
+# gives you a usable (template-mode, no audio) install for CI and tests.
+
+pydantic>=2.5
+pydantic-settings>=2.1
+structlog>=24.1
+typer>=0.12
+rich>=13.7
+requests>=2.31

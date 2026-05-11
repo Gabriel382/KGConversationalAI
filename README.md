@@ -1,193 +1,199 @@
-# 🎤🧠🔊 Graph-Driven Voice Agent with TAO Cycle
+# 🎤🧠🔊 KGConvAI — Graph-Driven Voice Agent with TAO Cycle
 
-*A modular, fully local conversational AI system following the Thought-Action-Observation cycle.*
-
-[![Python Version](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![CI](https://github.com/Gabriel382/KGConversationalAI/actions/workflows/ci.yml/badge.svg)](https://github.com/Gabriel382/KGConversationalAI/actions/workflows/ci.yml)
+[![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Ollama](https://img.shields.io/badge/LLM-Ollama-green)](https://ollama.com/)
-[![Whisper](https://img.shields.io/badge/ASR-Whisper-lightgrey)](https://github.com/openai/whisper)
-[![Transformers](https://img.shields.io/badge/NLU-Transformers-blue)](https://huggingface.co/)
+[![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
+[![Type checked: mypy](https://img.shields.io/badge/type%20checked-mypy-1f5082.svg)](https://mypy.readthedocs.io/)
+
+A modular voice-controlled conversational agent that follows the
+**Thought-Action-Observation (TAO)** cycle, built around a graph-based
+dialogue manager, optional FAQ retrieval, and pluggable LLM backends.
+
+> **Status:** alpha (0.2.0). The package is usable as a library and via the
+> CLI. Knowledge-graph backends (RDF/Neo4j) land in 0.3.0.
 
 ---
 
-**Graph-Driven Voice Agent** is a voice-controlled conversational agent that follows the **Thought-Action-Observation (TAO) Cycle**.
-It uses **real-time voice detection (VAD)**, **speech-to-text via Whisper**, **zero-shot intent classification**, **graph-based dialogue**, **optional knowledge retrieval**, and **LLM-driven generation** — all offline or via local models.
-
----
-
-## 📂 Project Structure
+## What it does
 
 ```
-graph_voice_agent/
-├── main.py                     # Run the TAO loop
-├── observation/                # Speech input (with VAD support)
-│   └── speech_to_text.py
-├── thought/                    # Reasoning and planning
-│   ├── intent_detector.py
-│   ├── dialogue_manager.py
-│   ├── faq_retriever.py
-│   └── response_generator.py
-├── action/                     # Speaking responses
-│   └── text_to_speech.py
-├── dialogue_graph/             # Dialogue logic and templates
-│   ├── conversation_graph.json
-│   ├── faq.json
-│   └── templates.json
-├── services/                   # Encapsulated logic for LLM and DB
-│   ├── db_faq.py
-│   ├── llm_classifier.py
-│   └── llm_generator/
-│       ├── base.py
-│       ├── api_base.py
-│       ├── openrouter.py
-│       └── ollama.py
-├── utils/
-│   ├── graph_utils.py
-│   └── logger.py
-├── imgs/                       # Architecture diagrams
-│   └── uml.png
-├── secrets/                    # API key (excluded from Git)
-│   └── apikey.json
-├── .gitignore
-├── requirements.txt
-└── README.md
+[ user speech ]
+       │
+       ▼
+┌──────────────┐    ┌────────────────────────────────┐    ┌──────────────┐
+│  Observation │ →  │           Thought              │ →  │    Action    │
+│  Whisper STT │    │  intent → dialogue graph →     │    │  pyttsx3 TTS │
+│   + WebRTC   │    │  optional FAQ → LLM response   │    │              │
+│      VAD     │    │                                │    │              │
+└──────────────┘    └────────────────────────────────┘    └──────────────┘
 ```
 
----
-
-## 🔥 Key Features
-
-* ✅ **Real-Time VAD (Voice Activity Detection)** using `webrtcvad`
-* 🗣️ **Multilingual ASR + English translation** via Whisper
-* 🧠 **Intent Detection** via Hugging Face zero-shot models
-* 🔀 **Graph-Based Dialogue** with modular transitions
-* 📚 **FAQ Answering** per dialogue state
-* 🧾 **Template + LLM Response Generation**
-* 🔊 **Offline Text-to-Speech (pyttsx3)**
-* 🔌 **Fully offline or API-based setups**
+Each iteration of the cycle reads from a `DialogueSession` (state +
+conversation history) and writes back to it. State is explicit, not global,
+so multiple sessions can run side-by-side and the agent is trivially
+testable.
 
 ---
 
-## 🧩 Technologies Used
+## Installation
 
-| Category         | Technology                                                          |
-| ---------------- | ------------------------------------------------------------------- |
-| ASR (Speech)     | [Whisper](https://github.com/openai/whisper)                        |
-| VAD              | [webrtcvad](https://github.com/wiseman/py-webrtcvad)                |
-| Intent Detection | [Transformers](https://huggingface.co/)                             |
-| Dialogue Manager | JSON-based state graphs                                             |
-| LLM Generator    | [Ollama](https://ollama.com/), [OpenRouter](https://openrouter.ai/) |
-| TTS              | [pyttsx3](https://pyttsx3.readthedocs.io/)                          |
-| Language         | Python 3.10+                                                        |
-
----
-
-## 🚀 Getting Started
-
-### 1. Install Python packages
+The package ships with several optional extras so you only install what you
+need.
 
 ```bash
-pip install -r requirements.txt
+# Library + template-mode CLI (no audio, no transformers, no LLM)
+pip install -e .
+
+# Voice mode (Whisper + sounddevice + WebRTC VAD + pyttsx3)
+pip install -e ".[voice]"
+
+# Add NLU (HuggingFace Transformers for zero-shot intent/FAQ)
+pip install -e ".[voice,nlu]"
+
+# Development (tests, ruff, mypy, pre-commit)
+pip install -e ".[dev]"
 ```
 
-If `webrtcvad` fails to install on Windows, install Visual Studio Build Tools:
-👉 [https://visualstudio.microsoft.com/visual-cpp-build-tools/](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
+You can also install a single base set from `requirements.txt`, but `.[…]`
+extras are the recommended path.
 
-### 2. Install Whisper + Audio dependencies
+### Running the LLM
+
+* `--mode local` talks to a local [Ollama](https://ollama.com/) server.
+  Install Ollama, run `ollama pull llama3`, then `ollama serve`.
+* `--mode api` talks to [OpenRouter](https://openrouter.ai/). Set
+  `KGCONVAI_OPENROUTER_API_KEY` in your environment or in a `.env` file.
+* `--mode template` (default) skips the LLM and replies from static templates
+  — useful for testing and CI.
+
+---
+
+## Quickstart
 
 ```bash
-pip install openai-whisper sounddevice numpy scipy
+# Verify the dialogue graph, FAQ and templates load
+kgconvai validate
+
+# Show effective settings
+kgconvai info
+
+# Run the agent (template mode, no audio hardware needed for templates)
+kgconvai run --mode template
+
+# Run with local Ollama
+kgconvai run --mode local
+
+# Run with OpenRouter API
+KGCONVAI_OPENROUTER_API_KEY=sk-or-... kgconvai run --mode api
 ```
 
-### 3. (Optional) Create a virtual environment
+`python -m kgconvai ...` works identically.
+
+### Library usage
+
+```python
+from kgconvai import Agent, DialogueSession, Settings
+from kgconvai.asr.whisper import WhisperASR
+from kgconvai.dialogue.graph import DialogueGraph
+from kgconvai.dialogue.templates import TemplateStore
+from kgconvai.llm.ollama import OllamaLLM
+from kgconvai.nlu.classifier import ZeroShotClassifier
+from kgconvai.nlu.faq import FAQStore
+from kgconvai.tts.pyttsx3_engine import Pyttsx3TTS
+
+settings = Settings()
+
+agent = Agent(
+    asr=WhisperASR("base"),
+    tts=Pyttsx3TTS(),
+    classifier=ZeroShotClassifier(),
+    graph=DialogueGraph.from_path("dialogue_graph/conversation_graph.json"),
+    faq=FAQStore.from_path("dialogue_graph/faq.json"),
+    templates=TemplateStore.from_path("dialogue_graph/templates.json"),
+    llm=OllamaLLM(),
+    settings=settings,
+)
+
+# Voice loop
+agent.run()
+
+# Or programmatic single-turn
+reply = agent.respond("I want to book a meeting")
+```
+
+---
+
+## Project layout
+
+```
+src/kgconvai/
+├── agent.py            # high-level Agent that drives the TAO cycle
+├── cli.py              # typer CLI: run, info, validate, version
+├── config.py           # Settings (pydantic-settings)
+├── logging.py          # structlog setup
+├── state.py            # DialogueSession + Turn (no more globals)
+├── asr/                # speech-to-text (Whisper + WebRTC VAD)
+├── tts/                # text-to-speech (pyttsx3)
+├── llm/                # Ollama + OpenRouter clients (abstract LLMGenerator)
+├── nlu/                # classifier + intent + FAQ retrieval
+└── dialogue/           # DialogueGraph, DialogueManager, TemplateStore
+dialogue_graph/
+├── conversation_graph.json
+├── faq.json
+└── templates.json
+tests/
+├── unit/               # 30+ unit tests
+└── integration/        # end-to-end TAO cycle with mocked backends
+```
+
+---
+
+## Development
 
 ```bash
-python -m venv venv
-source venv/bin/activate  # Windows: .\venv\Scripts\activate
+# Install dev extras and pre-commit hooks
+pip install -e ".[dev]"
+pre-commit install
+
+# Lint, format, type-check, test
+ruff check src tests
+ruff format src tests
+mypy
+pytest --cov
+
+# Run only the fast unit tests
+pytest -m "not integration"
 ```
 
-### 4. Ollama Setup (Local LLMs)
-
-* Install Ollama: [https://ollama.com/](https://ollama.com/)
-* Pull a model:
-
-  ```bash
-  ollama pull llama3
-  ```
-* Start the server:
-
-  ```bash
-  ollama serve
-  ```
-
-### 5. (Optional) Use OpenRouter API
-
-* Create a file at `secrets/apikey.json`:
-
-```json
-{
-  "api_key": "your-openrouter-key"
-}
-```
-
-* Run with:
-
-```bash
-python main.py --mode api
-```
-
-### 6. Run the Voice Agent
-
-```bash
-python main.py
-```
-
-Speak clearly when prompted. The system will listen, classify your intent, retrieve knowledge, and respond.
+CI runs the same pipeline on Python 3.10, 3.11, and 3.12 via GitHub Actions.
 
 ---
 
-## 🧠 TAO Cycle Architecture
+## Roadmap
 
-![TAO Architecture](imgs/uml.png)
-
----
-
-## ✅ Example Intents & States
-
-* `greet → ask_information`
-* `book_meeting → confirm_booking → end`
-* `cancel → end`
-* `ask_information → provide_information`
-
----
-
-## 🌟 Coming Soon
-
-
-* 📡 Knowledge-based (Ontology + KG) integration
-* 🧠 Fine-tuned local intent models
-* 💬 Session memory and logging
-* 🌍 Full multilingual response support
-* 🎛️ GUI (Streamlit or Gradio) ?
+* **0.2.0** ✅ — package restructure, tests, CI, config, structured logging.
+* **0.3.0** — RDF/OWL ontology + bidirectional JSON ↔ RDF sync.
+* **0.4.0** — Neo4j backend behind the same `KnowledgeGraph` interface,
+  with `docker-compose up` quickstart and graph visualization via Neo4j
+  Browser. JSON ↔ Neo4j sync.
+* **0.5.0** — Gradio demo (Hugging Face Spaces) and Streamlit admin panel
+  for editing dialogue/FAQ nodes.
+* **0.6.0** — Evaluation harness (intent accuracy, FAQ P@1) running in CI;
+  MkDocs documentation site.
 
 ---
 
-## 📖 References
+## References
 
-   1. Yin, M., Roccabruna, G., Azad, A., & Riccardi, G. (2023). Let's Give a Voice to Conversational Agents in Virtual Reality. arXiv. [https://doi.org/10.48550/arXiv.2308.02665](https://doi.org/10.48550/arXiv.2308.02665)
-   2. Wang, H., Kwan, W.-C., Li, M., Zhou, Z., & Wong, K.-F. (2024). KddRES: A Multi-level Knowledge-driven Dialogue Dataset for Restaurant Towards Customized Dialogue System. Computer Speech & Language, 87, 101637. [https://doi.org/10.1016/j.csl.2024.101637](https://doi.org/10.1016/j.csl.2024.101637)
-   3. Hussain, S., Ameri Sianaki, O., Ababneh, N. (2019). A Survey on Conversational Agents/Chatbots Classification and Design Techniques. In: Barolli, L., Takizawa, M., Xhafa, F., Enokido, T. (eds) Web, Artificial Intelligence and Network Applications. WAINA 2019. Advances in Intelligent Systems and Computing, vol 927. Springer, Cham. [https://doi.org/10.1007/978-3-030-15035-8_93](https://doi.org/10.1007/978-3-030-15035-8_93)
-   4. Fang, R., Bowman, D., & Kang, D. (2024). Voice-Enabled AI Agents can Perform Common Scams (arXiv:2410.15650). [https://arxiv.org/abs/2410.15650](https://arxiv.org/abs/2410.15650)
-   5. Li, G., Al Kader Hammoud, H. A., Itani, H., Khizbullin, D., & Ghanem, B. (2023). CAMEL: communicative agents for "mind" exploration of large language model society. In Proceedings of the 37th International Conference on Neural Information Processing Systems (Article 2264, pp. 1–18). Curran Associates Inc.[https://arxiv.org/abs/2303.17760](https://arxiv.org/abs/2303.17760)
+1. Yin, M., Roccabruna, G., Azad, A., & Riccardi, G. (2023). *Let's Give a Voice to Conversational Agents in Virtual Reality*. arXiv:2308.02665.
+2. Wang, H., Kwan, W.-C., Li, M., Zhou, Z., & Wong, K.-F. (2024). *KddRES: A Multi-level Knowledge-driven Dialogue Dataset for Restaurant*. Computer Speech & Language, 87.
+3. Hussain, S., Ameri Sianaki, O., Ababneh, N. (2019). *A Survey on Conversational Agents/Chatbots Classification and Design Techniques*. WAINA 2019.
+4. Fang, R., Bowman, D., & Kang, D. (2024). *Voice-Enabled AI Agents can Perform Common Scams*. arXiv:2410.15650.
+5. Li, G., et al. (2023). *CAMEL: communicative agents for "mind" exploration of large language model society*. NeurIPS 2023.
 
 ---
 
-## 📬 Contact
+## License
 
-If you have any questions or want to reach out to the team, please send me an email at [henrique382@gmail.com](henrique382@gmail.com).
-
-## 📚 License
-
-MIT License — see [LICENSE](LICENSE)
-
-Developed by **Gabriel Henrique Alencar Medeiros**
+MIT — see [LICENSE](LICENSE). Built by **Gabriel Henrique Alencar Medeiros**.

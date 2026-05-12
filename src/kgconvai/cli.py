@@ -122,3 +122,88 @@ def run(
         settings=settings,
     )
     agent.run()
+
+
+# -----------------------------------------------------------------------------
+# 'kg' subcommand group: import / export / validate / diff knowledge graphs
+# -----------------------------------------------------------------------------
+
+kg_app = typer.Typer(help="Manage knowledge-graph backends and JSON sync.")
+app.add_typer(kg_app, name="kg")
+
+
+@kg_app.command("validate")
+def kg_validate(
+    src: Path = typer.Argument(Path("dialogue_graph/kg.json"), help="Canonical KG JSON."),
+) -> None:
+    """Validate a KG JSON file against the canonical schema."""
+    from kgconvai.kg.schema import KGData
+
+    data = KGData.from_json(src)
+    console.print(
+        f"[green]ok[/] {src}: {len(data.states)} states, "
+        f"{len(data.intents)} intents, {len(data.transitions)} transitions, "
+        f"{len(data.faqs)} faqs, {len(data.templates)} templates"
+    )
+
+
+@kg_app.command("export")
+def kg_export(
+    backend: str = typer.Option("rdf", "--backend", help="rdf | neo4j"),
+    src: Path = typer.Option(Path("dialogue_graph/kg.json"), "--from"),
+    dst: Path = typer.Option(Path("dialogue_graph/kg.export.json"), "--to"),
+    ontology: Path | None = typer.Option(None, help="Optional ontology .ttl to load."),
+    neo4j_uri: str = typer.Option("bolt://localhost:7687", help="Neo4j Bolt URI."),
+    neo4j_user: str = typer.Option("neo4j", help="Neo4j user."),
+    neo4j_password: str = typer.Option("kgconvai", help="Neo4j password."),
+) -> None:
+    """Import canonical JSON into the chosen backend, then export back to JSON.
+
+    The result of a clean round-trip should equal the input. Use this to
+    sanity-check edits made directly in Neo4j Browser.
+    """
+    from kgconvai.kg.schema import KGData
+
+    data = KGData.from_json(src)
+    if backend == "rdf":
+        from kgconvai.kg.rdf_backend import RDFBackend
+
+        rdf_be = RDFBackend(ontology_paths=[ontology] if ontology else [])
+        rdf_graph = rdf_be.import_(data)
+        exported = rdf_be.export(rdf_graph)
+    elif backend == "neo4j":
+        from kgconvai.kg.neo4j_backend import Neo4jBackend
+
+        with Neo4jBackend(neo4j_uri, neo4j_user, neo4j_password) as neo_be:
+            neo_graph = neo_be.import_(data)
+            exported = neo_be.export(neo_graph)
+    else:
+        raise typer.BadParameter(f"unknown backend: {backend!r}")
+
+    exported.to_json(dst)
+    console.print(f"[green]ok[/] exported {backend} graph -> {dst}")
+
+
+@kg_app.command("diff")
+def kg_diff(
+    a: Path = typer.Argument(..., help="First KG JSON."),
+    b: Path = typer.Argument(..., help="Second KG JSON."),
+) -> None:
+    """Show a structural diff between two KG JSON files (canonicalised)."""
+    import json
+
+    from kgconvai.kg.schema import KGData
+
+    la = json.loads(KGData.from_json(a).to_json())
+    lb = json.loads(KGData.from_json(b).to_json())
+
+    sections = ("states", "intents", "transitions", "faqs", "templates", "entities", "relations")
+    any_diff = False
+    for section in sections:
+        if la.get(section) != lb.get(section):
+            any_diff = True
+            la_n = len(la.get(section, []))
+            lb_n = len(lb.get(section, []))
+            console.print(f"[yellow]{section} differs[/] (a={la_n}, b={lb_n})")
+    if not any_diff:
+        console.print("[green]identical[/]")

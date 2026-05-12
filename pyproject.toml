@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "kgconvai"
-version = "0.2.0"
+version = "0.3.0"
 description = "Graph-driven voice agent with a Thought-Action-Observation control loop."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -44,6 +44,16 @@ nlu = [
     "transformers>=4.40",
     "torch>=2.2",
 ]
+embeddings = [
+    "sentence-transformers>=2.7",
+]
+kg = [
+    "rdflib>=7.0",
+    "jsonschema>=4.20",
+]
+neo4j = [
+    "neo4j>=5.20",
+]
 api = []
 dev = [
     "pytest>=8.0",
@@ -54,6 +64,9 @@ dev = [
     "mypy>=1.10",
     "types-requests",
     "pre-commit>=3.7",
+    "rdflib>=7.0",
+    "jsonschema>=4.20",
+    "neo4j>=5.20",
 ]
 
 [project.scripts]
@@ -98,6 +111,7 @@ addopts = ["-ra", "--strict-markers", "--strict-config"]
 markers = [
     "integration: end-to-end tests that wire the full TAO cycle (deselect with -m 'not integration')",
     "slow: tests that take more than a second",
+    "neo4j: tests that require a reachable Neo4j server (auto-skip otherwise)",
 ]
 
 [tool.coverage.run]

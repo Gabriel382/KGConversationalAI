@@ -37,8 +37,26 @@ class DialogueGraph:
 
     @classmethod
     def from_path(cls, path: str | Path) -> DialogueGraph:
+        """Load from JSON. Accepts either the legacy nested format or the
+        canonical KGData JSON (autodetected by a ``transitions`` array)."""
         with Path(path).open(encoding="utf-8") as f:
-            return cls(json.load(f))
+            raw = json.load(f)
+        if isinstance(raw, dict) and "transitions" in raw and isinstance(raw["transitions"], list):
+            return cls.from_kg_json(raw)
+        return cls(raw)
+
+    @classmethod
+    def from_kg_json(cls, kg: dict) -> DialogueGraph:
+        transitions: dict[str, dict[str, str]] = {}
+        for t in kg.get("transitions", []):
+            transitions.setdefault(t["from"], {})[t["intent"]] = t["to"]
+        for s in kg.get("states", []):
+            transitions.setdefault(s["id"], {})
+        kb_states = frozenset(s["id"] for s in kg.get("states", []) if s.get("requires_knowledge"))
+        graph = cls(transitions)
+        if kb_states:
+            graph._kb_states = kb_states  # type: ignore[attr-defined]
+        return graph
 
     def states(self) -> list[str]:
         return list(self._transitions.keys())
@@ -54,7 +72,8 @@ class DialogueGraph:
         """Resolve the next state, falling back to staying if no match."""
         outgoing = self._transitions.get(current_state, {})
         next_state = outgoing.get(intent, current_state)
+        kb_states = getattr(self, "_kb_states", self.KB_STATES)
         return ActionNode(
             next_state=next_state,
-            requires_kb=next_state in self.KB_STATES,
+            requires_kb=next_state in kb_states,
         )

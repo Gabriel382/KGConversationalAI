@@ -1,0 +1,124 @@
+@prefix kgc:    <http://kgconvai.org/core#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+#################################################################
+# Ontology header
+#################################################################
+
+<http://kgconvai.org/core> a owl:Ontology ;
+    dcterms:title "KGConvAI Core Ontology" ;
+    dcterms:description """Generic vocabulary for graph-driven conversational agents: dialogue
+         states, intents, transitions, FAQ entries, and response templates.
+         Domain-specific ontologies (e.g. phone-call assistant) import this
+         module and extend it with additional classes.""" ;
+    dcterms:creator "Gabriel Henrique Alencar Medeiros" ;
+    owl:versionInfo "1.0" .
+
+#################################################################
+# Classes
+#################################################################
+
+kgc:DialogueState a owl:Class ;
+    rdfs:label "Dialogue State" ;
+    rdfs:comment "A node in the dialogue state machine. The conversation occupies exactly one state at a time." .
+
+kgc:TerminalState a owl:Class ;
+    rdfs:subClassOf kgc:DialogueState ;
+    rdfs:label "Terminal State" ;
+    rdfs:comment "A state from which the conversation ends." .
+
+kgc:Intent a owl:Class ;
+    rdfs:label "Intent" ;
+    rdfs:comment "A category of user utterance (greet, book_meeting, goodbye, ...)." .
+
+kgc:Transition a owl:Class ;
+    rdfs:label "Transition" ;
+    rdfs:comment "A directed edge in the state machine, triggered by an Intent." .
+
+kgc:FAQEntry a owl:Class ;
+    rdfs:label "FAQ Entry" ;
+    rdfs:comment "A canonical question-answer pair, scoped to a specific Intent." .
+
+kgc:ResponseTemplate a owl:Class ;
+    rdfs:label "Response Template" ;
+    rdfs:comment "A natural-language instruction the LLM uses to phrase replies for a given Intent." .
+
+kgc:Conversation a owl:Class ;
+    rdfs:label "Conversation" ;
+    rdfs:comment "Container for a sequence of dialogue turns belonging to one session." .
+
+kgc:Turn a owl:Class ;
+    rdfs:label "Turn" ;
+    rdfs:comment "A single utterance by either the user or the agent." .
+
+kgc:Speaker a owl:Class ;
+    rdfs:label "Speaker" .
+
+kgc:User a kgc:Speaker .
+kgc:Agent a kgc:Speaker .
+
+#################################################################
+# Object properties
+#################################################################
+
+kgc:hasFromState a owl:ObjectProperty ;
+    rdfs:domain kgc:Transition ;
+    rdfs:range kgc:DialogueState ;
+    rdfs:label "has from state" .
+
+kgc:hasToState a owl:ObjectProperty ;
+    rdfs:domain kgc:Transition ;
+    rdfs:range kgc:DialogueState ;
+    rdfs:label "has to state" .
+
+kgc:triggersIntent a owl:ObjectProperty ;
+    rdfs:domain kgc:Transition ;
+    rdfs:range kgc:Intent ;
+    rdfs:label "triggered by intent" .
+
+kgc:hasIntent a owl:ObjectProperty ;
+    rdfs:domain kgc:FAQEntry ;
+    rdfs:range kgc:Intent ;
+    rdfs:label "has intent" .
+
+kgc:hasTemplateIntent a owl:ObjectProperty ;
+    rdfs:domain kgc:ResponseTemplate ;
+    rdfs:range kgc:Intent ;
+    rdfs:label "has template intent" .
+
+kgc:requiresKnowledge a owl:DatatypeProperty ;
+    rdfs:domain kgc:DialogueState ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "requires knowledge base" ;
+    rdfs:comment "If true, entering this state should trigger FAQ retrieval." .
+
+#################################################################
+# Datatype properties
+#################################################################
+
+kgc:label a owl:DatatypeProperty ;
+    rdfs:range xsd:string .
+
+kgc:question a owl:DatatypeProperty ;
+    rdfs:domain kgc:FAQEntry ;
+    rdfs:range xsd:string .
+
+kgc:answer a owl:DatatypeProperty ;
+    rdfs:domain kgc:FAQEntry ;
+    rdfs:range xsd:string .
+
+kgc:text a owl:DatatypeProperty ;
+    rdfs:domain kgc:ResponseTemplate ;
+    rdfs:range xsd:string .
+
+kgc:locale a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "BCP-47 language tag (e.g. 'en', 'fr-FR')." .
+
+kgc:exampleUtterance a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "An example utterance attached to an Intent or FAQEntry." .

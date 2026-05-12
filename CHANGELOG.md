@@ -48,3 +48,40 @@ All notable changes to this project are documented here. The format follows
 ## [0.1.0] - 2025-05-02
 
 Initial public version. See git history for details.
+
+## [0.3.0] - 2026-05-12
+
+### Added
+- **Knowledge-graph layer** (`src/kgconvai/kg/`)
+  - `KGData` Pydantic models matching the canonical JSON schema at
+    `schemas/kgconvai.schema.json`.
+  - Abstract `KnowledgeGraph`, `KGImporter`, `KGExporter`, `KGBackend`
+    interfaces.
+  - `RDFBackend` (rdflib): in-process, zero-install, used in CI. Round-trips
+    canonical JSON via RDF triples. Supports SPARQL queries.
+  - `Neo4jBackend`: property-graph backend behind the same interface.
+    Round-trips JSON via Cypher. Auto-skipped in CI when no Neo4j is
+    reachable; full docker-compose setup at `docker/docker-compose.yml`.
+- **RDF/OWL ontology** in `ontology/`:
+  - `core.ttl` — generic vocabulary (`DialogueState`, `Intent`, `Transition`,
+    `FAQEntry`, `ResponseTemplate`).
+  - `examples/phone_call.ttl` — domain-specific extension (`Caller`,
+    `Service`, `Appointment`, `BusinessHours`).
+- **Canonical JSON Schema** (`schemas/kgconvai.schema.json`) validated on
+  import via `jsonschema`.
+- **Embedding-based FAQ retrieval** (`src/kgconvai/nlu/embeddings.py`).
+  `EmbeddingRetriever` implements the `Classifier` protocol and is a drop-in
+  replacement for `ZeroShotClassifier`. Caches candidate vectors.
+- **CLI**: new `kgconvai kg` subcommand group with `validate`, `export`
+  (round-trips through the chosen backend), `diff`.
+- **Migration script** `scripts/migrate_legacy_data.py` and the resulting
+  `dialogue_graph/kg.json` in the new canonical format.
+- 19 new tests covering schema validation, RDF round-trip, Neo4j round-trip
+  (skipped without server), embedding retriever, and canonical/legacy
+  loader autodetection.
+
+### Changed
+- `DialogueGraph.from_path`, `FAQStore.from_path`, and `TemplateStore.from_path`
+  now auto-detect the format and load the new canonical `kg.json`.
+- `KGData.to_json` emits canonicalised output (sections sorted by stable
+  key) for byte-identical round-trips across backends.

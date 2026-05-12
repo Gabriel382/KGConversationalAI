@@ -14,4 +14,6 @@ from kgconvai.state import DialogueSession, Turn
 
 __all__ = ["Agent", "DialogueSession", "Settings", "Turn", "__version__"]
 
-__version__ = "0.2.0"
+from importlib.metadata import version as _v
+__version__ = _v("kgconvai")
+

@@ -1,0 +1,76 @@
+# Hand-labelled intent test set for kgconvai.
+#
+# Each example is (utterance, expected_intent). Intents must match an `id`
+# from dialogue_graph/kg.json.
+#
+# Used by `kgconvai eval intents` and the CI eval job.
+
+dataset: intents
+version: "1.0"
+candidates:
+  - greet
+  - ask_information
+  - book_meeting
+  - confirm_booking
+  - cancel
+  - goodbye
+  - unknown
+
+examples:
+  # --- greet ----------------------------------------------------------------
+  - { utterance: "Hello",                                  expected: greet }
+  - { utterance: "Hi there",                               expected: greet }
+  - { utterance: "Good morning",                           expected: greet }
+  - { utterance: "Hey, how are you?",                      expected: greet }
+  - { utterance: "Hi, I'd like some help",                 expected: greet }
+
+  # --- ask_information ------------------------------------------------------
+  - { utterance: "What are your opening hours?",           expected: ask_information }
+  - { utterance: "When do you open?",                      expected: ask_information }
+  - { utterance: "What time do you close?",                expected: ask_information }
+  - { utterance: "Where are you located?",                 expected: ask_information }
+  - { utterance: "What's your address?",                   expected: ask_information }
+  - { utterance: "How can I find you?",                    expected: ask_information }
+  - { utterance: "Tell me about your business",            expected: ask_information }
+  - { utterance: "I need some information",                expected: ask_information }
+  - { utterance: "Can you tell me when you are open",      expected: ask_information }
+
+  # --- book_meeting ---------------------------------------------------------
+  - { utterance: "I'd like to book a meeting",             expected: book_meeting }
+  - { utterance: "Can I schedule an appointment?",         expected: book_meeting }
+  - { utterance: "How do I book a meeting?",               expected: book_meeting }
+  - { utterance: "I want to make an appointment",          expected: book_meeting }
+  - { utterance: "Please schedule me for next Tuesday",    expected: book_meeting }
+  - { utterance: "Book me in for tomorrow",                expected: book_meeting }
+  - { utterance: "I'd like an appointment",                expected: book_meeting }
+  - { utterance: "Set up a meeting please",                expected: book_meeting }
+
+  # --- confirm_booking ------------------------------------------------------
+  - { utterance: "Yes, that works",                        expected: confirm_booking }
+  - { utterance: "Please confirm the booking",             expected: confirm_booking }
+  - { utterance: "Yes, confirm it",                        expected: confirm_booking }
+  - { utterance: "Confirm the appointment",                expected: confirm_booking }
+  - { utterance: "That time is fine",                      expected: confirm_booking }
+
+  # --- cancel ---------------------------------------------------------------
+  - { utterance: "I want to cancel",                       expected: cancel }
+  - { utterance: "Cancel my appointment",                  expected: cancel }
+  - { utterance: "Never mind, cancel that",                expected: cancel }
+  - { utterance: "What's your cancellation policy?",       expected: cancel }
+  - { utterance: "Can I cancel the meeting?",              expected: cancel }
+  - { utterance: "I changed my mind, cancel please",       expected: cancel }
+  - { utterance: "Drop the booking",                       expected: cancel }
+
+  # --- goodbye --------------------------------------------------------------
+  - { utterance: "Goodbye",                                expected: goodbye }
+  - { utterance: "Bye",                                    expected: goodbye }
+  - { utterance: "See you later",                          expected: goodbye }
+  - { utterance: "Thanks, bye",                            expected: goodbye }
+  - { utterance: "That's all, thanks",                     expected: goodbye }
+  - { utterance: "Have a good day",                        expected: goodbye }
+  - { utterance: "Take care",                              expected: goodbye }
+
+  # --- unknown --------------------------------------------------------------
+  - { utterance: "purple monkey dishwasher",               expected: unknown }
+  - { utterance: "asdfghjkl",                              expected: unknown }
+  - { utterance: "",                                       expected: unknown }

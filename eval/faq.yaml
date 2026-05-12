@@ -1,0 +1,69 @@
+# Hand-labelled FAQ retrieval test set.
+# Each example asks an FAQ in slightly different wording; expected is the
+# canonical FAQ entry id from dialogue_graph/kg.json.
+
+dataset: faq
+version: "1.0"
+
+examples:
+  # --- ask_information FAQs ------------------------------------------------
+  - { utterance: "What are your opening hours?",
+      intent: ask_information,
+      expected: ask_information__what_are_your_opening_hours }
+  - { utterance: "When do you open?",
+      intent: ask_information,
+      expected: ask_information__what_are_your_opening_hours }
+  - { utterance: "What time do you close?",
+      intent: ask_information,
+      expected: ask_information__what_are_your_opening_hours }
+  - { utterance: "Tell me your business hours",
+      intent: ask_information,
+      expected: ask_information__what_are_your_opening_hours }
+
+  - { utterance: "Where are you located?",
+      intent: ask_information,
+      expected: ask_information__where_are_you_located }
+  - { utterance: "What's your address?",
+      intent: ask_information,
+      expected: ask_information__where_are_you_located }
+  - { utterance: "Where can I find you?",
+      intent: ask_information,
+      expected: ask_information__where_are_you_located }
+  - { utterance: "What part of town are you in?",
+      intent: ask_information,
+      expected: ask_information__where_are_you_located }
+
+  # --- book_meeting FAQs ---------------------------------------------------
+  - { utterance: "How do I book an appointment?",
+      intent: book_meeting,
+      expected: book_meeting__how_to_book_an_appointment }
+  - { utterance: "What's the booking process?",
+      intent: book_meeting,
+      expected: book_meeting__how_to_book_an_appointment }
+  - { utterance: "How do I schedule a meeting?",
+      intent: book_meeting,
+      expected: book_meeting__how_to_book_an_appointment }
+
+  - { utterance: "Can I schedule a meeting?",
+      intent: book_meeting,
+      expected: book_meeting__can_i_schedule_a_meeting }
+  - { utterance: "Could I make an appointment?",
+      intent: book_meeting,
+      expected: book_meeting__can_i_schedule_a_meeting }
+  - { utterance: "Am I able to book a slot?",
+      intent: book_meeting,
+      expected: book_meeting__can_i_schedule_a_meeting }
+
+  # --- cancel FAQs ---------------------------------------------------------
+  - { utterance: "What's your cancellation policy?",
+      intent: cancel,
+      expected: cancel__what_is_the_cancel_policy }
+  - { utterance: "How do I cancel?",
+      intent: cancel,
+      expected: cancel__what_is_the_cancel_policy }
+  - { utterance: "Can I get a refund if I cancel?",
+      intent: cancel,
+      expected: cancel__what_is_the_cancel_policy }
+  - { utterance: "How late can I cancel?",
+      intent: cancel,
+      expected: cancel__what_is_the_cancel_policy }

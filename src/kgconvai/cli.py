@@ -257,3 +257,103 @@ def web_admin(
     ]
     console.print(f"[bold]Launching admin panel at[/] http://localhost:{port}")
     subprocess.run(cmd, env=env, check=False)
+
+
+# -----------------------------------------------------------------------------
+# 'eval' subcommand group: run labelled evaluations + emit metrics
+# -----------------------------------------------------------------------------
+
+eval_app = typer.Typer(help="Run evaluations against labelled datasets.")
+app.add_typer(eval_app, name="eval")
+
+
+def _build_classifier(name: str):
+    """Construct one of the supported classifier backends for eval."""
+    if name == "substring":
+        from kgconvai.nlu.classifier import Classification, Classifier
+
+        class _SubstringClassifier(Classifier):
+            def classify(self, text: str, candidates: list[str]) -> list[Classification]:
+                t = text.lower()
+                scored: list[Classification] = []
+                for c in candidates:
+                    tokens = c.replace("_", " ").lower().split()
+                    overlap = sum(1 for tok in tokens if tok in t)
+                    scored.append(Classification(label=c, score=overlap / max(len(tokens), 1)))
+                scored.sort(key=lambda x: x.score, reverse=True)
+                return scored
+
+        return _SubstringClassifier(), "substring"
+
+    if name == "embedding":
+        from kgconvai.nlu.embeddings import EmbeddingRetriever, SentenceTransformerEncoder
+
+        return EmbeddingRetriever(SentenceTransformerEncoder()), "embedding(MiniLM-L6-v2)"
+
+    if name == "zero_shot":
+        from kgconvai.nlu.classifier import ZeroShotClassifier
+
+        return ZeroShotClassifier(), "zero_shot(bart-large-mnli)"
+
+    raise typer.BadParameter(f"unknown classifier: {name!r}")
+
+
+@eval_app.command("intents")
+def eval_intents(
+    dataset: Path = typer.Option(Path("eval/intents.yaml"), help="Labelled intents YAML."),
+    classifier: str = typer.Option("substring", help="substring | embedding | zero_shot"),
+    threshold: float = typer.Option(0.0, help="Fail with exit code 1 if accuracy < threshold."),
+    json_out: Path | None = typer.Option(None, "--json-out", help="Write a metrics JSON here."),
+    show_examples: bool = typer.Option(True, help="Print per-example table."),
+) -> None:
+    """Run the intent-classification eval."""
+    from kgconvai.eval import format_report, load_intent_dataset, run_intent_eval
+
+    ds = load_intent_dataset(dataset)
+    clf, name = _build_classifier(classifier)
+    report = run_intent_eval(ds, clf, classifier_name=name)
+    console.print(format_report(report, show_examples=show_examples))
+    if json_out is not None:
+        report.to_json(json_out)
+        console.print(f"[green]wrote[/] {json_out}")
+    if report.metrics.accuracy < threshold:
+        console.print(
+            f"[red]FAIL[/] accuracy {report.metrics.accuracy * 100:.1f}% < threshold "
+            f"{threshold * 100:.1f}%"
+        )
+        raise typer.Exit(code=1)
+
+
+@eval_app.command("faq")
+def eval_faq(
+    dataset: Path = typer.Option(Path("eval/faq.yaml"), help="Labelled FAQ YAML."),
+    kg: Path = typer.Option(Path("dialogue_graph/kg.json"), help="KG JSON with FAQ entries."),
+    classifier: str = typer.Option("substring", help="substring | embedding | zero_shot"),
+    threshold: float = typer.Option(0.0, help="Fail with exit code 1 if accuracy < threshold."),
+    json_out: Path | None = typer.Option(None, "--json-out", help="Write a metrics JSON here."),
+    show_examples: bool = typer.Option(True, help="Print per-example table."),
+) -> None:
+    """Run the FAQ-retrieval eval (per-intent candidate sets from kg.json)."""
+    import json
+
+    from kgconvai.eval import format_report, load_faq_dataset, run_faq_eval
+
+    ds = load_faq_dataset(dataset)
+    clf, name = _build_classifier(classifier)
+
+    raw_kg = json.loads(Path(kg).read_text(encoding="utf-8"))
+    candidates_by_intent: dict[str, list[str]] = {}
+    for entry in raw_kg.get("faqs", []):
+        candidates_by_intent.setdefault(entry["intent"], []).append(entry["id"])
+
+    report = run_faq_eval(ds, clf, candidates_by_intent, classifier_name=name)
+    console.print(format_report(report, show_examples=show_examples))
+    if json_out is not None:
+        report.to_json(json_out)
+        console.print(f"[green]wrote[/] {json_out}")
+    if report.metrics.accuracy < threshold:
+        console.print(
+            f"[red]FAIL[/] accuracy {report.metrics.accuracy * 100:.1f}% < threshold "
+            f"{threshold * 100:.1f}%"
+        )
+        raise typer.Exit(code=1)

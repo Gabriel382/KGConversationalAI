@@ -1,0 +1,69 @@
+site_name: KGConvAI
+site_description: Graph-driven voice agent with a Thought-Action-Observation control loop.
+site_author: Gabriel Henrique Alencar Medeiros
+site_url: https://gabriel382.github.io/KGConversationalAI/
+repo_url: https://github.com/Gabriel382/KGConversationalAI
+repo_name: Gabriel382/KGConversationalAI
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.indexes
+    - navigation.top
+    - content.code.copy
+    - content.code.annotate
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue
+      accent: green
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue
+      accent: green
+      toggle:
+        icon: material/weather-night
+        name: Switch to light mode
+
+nav:
+  - Home: index.md
+  - Quickstart: quickstart.md
+  - Installation: installation.md
+  - Architecture: architecture.md
+  - Knowledge graph:
+    - Overview: kg/overview.md
+    - Canonical schema: kg/schema.md
+    - Backends: kg/backends.md
+  - Web interfaces: web.md
+  - Evaluation: evaluation.md
+  - ADRs:
+    - adr/index.md
+    - "0001 — TAO control loop": adr/0001-tao-control-loop.md
+    - "0002 — KG abstraction over RDF + Neo4j": adr/0002-kg-abstraction.md
+    - "0003 — Canonical JSON as source of truth": adr/0003-canonical-json.md
+    - "0004 — Embeddings over zero-shot NLI": adr/0004-embeddings-vs-nli.md
+
+markdown_extensions:
+  - admonition
+  - footnotes
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true

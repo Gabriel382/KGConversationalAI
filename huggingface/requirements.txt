@@ -1,0 +1,4 @@
+# Hugging Face Spaces installs this on first build.
+# Keep it light: template mode by default, no torch/whisper unless wanted.
+kgconvai[kg] @ git+https://github.com/Gabriel382/KGConversationalAI.git@main
+gradio>=4.40

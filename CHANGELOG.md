@@ -85,3 +85,24 @@ Initial public version. See git history for details.
   now auto-detect the format and load the new canonical `kg.json`.
 - `KGData.to_json` emits canonicalised output (sections sorted by stable
   key) for byte-identical round-trips across backends.
+
+## [0.4.0] - 2026-05-12
+
+### Added
+- **Gradio chat UI** (`src/kgconvai/web/chat.py`).
+  Per-session conversation state via `gr.State`. Wraps `Agent.respond()`.
+- **Streamlit admin panel** (`src/kgconvai/web/admin.py`).
+  Visual PyVis graph of the dialogue states; editable tables for states,
+  intents, transitions, FAQ, templates. Validates against the canonical
+  schema before saving.
+- **CLI**: `kgconvai web chat`, `kgconvai web admin`.
+- **Dockerfile** (multi-stage, ~250 MB) + extended `docker-compose.yml`
+  (chat + admin + Neo4j on one `docker compose up`).
+- **Hugging Face Space** scaffolding in `huggingface/` (app.py, requirements,
+  README with Space metadata).
+- 7 new tests covering Gradio Blocks construction, Streamlit admin helpers,
+  PyVis graph rendering, and HF Space metadata.
+
+### Changed
+- New `[web]` optional extra in `pyproject.toml` for the browser deps.
+- Dev extras now include gradio/streamlit/pyvis so CI exercises the web modules.

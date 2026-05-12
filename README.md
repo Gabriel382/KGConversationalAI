@@ -1,6 +1,8 @@
 # 🎤🧠🔊 KGConvAI — Graph-Driven Voice Agent with TAO Cycle
 
 [![CI](https://github.com/Gabriel382/KGConversationalAI/actions/workflows/ci.yml/badge.svg)](https://github.com/Gabriel382/KGConversationalAI/actions/workflows/ci.yml)
+[![Eval](https://github.com/Gabriel382/KGConversationalAI/actions/workflows/eval.yml/badge.svg)](https://github.com/Gabriel382/KGConversationalAI/actions/workflows/eval.yml)
+[![Docs](https://github.com/Gabriel382/KGConversationalAI/actions/workflows/docs.yml/badge.svg)](https://github.com/Gabriel382/KGConversationalAI/actions/workflows/docs.yml)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
@@ -173,14 +175,10 @@ CI runs the same pipeline on Python 3.10, 3.11, and 3.12 via GitHub Actions.
 ## Roadmap
 
 * **0.2.0** ✅ — package restructure, tests, CI, config, structured logging.
-* **0.3.0** — RDF/OWL ontology + bidirectional JSON ↔ RDF sync.
-* **0.4.0** — Neo4j backend behind the same `KnowledgeGraph` interface,
-  with `docker-compose up` quickstart and graph visualization via Neo4j
-  Browser. JSON ↔ Neo4j sync.
-* **0.5.0** — Gradio demo (Hugging Face Spaces) and Streamlit admin panel
-  for editing dialogue/FAQ nodes.
-* **0.6.0** — Evaluation harness (intent accuracy, FAQ P@1) running in CI;
-  MkDocs documentation site.
+* **0.3.0** ✅ — RDF/OWL ontology, rdflib backend, Neo4j backend, sentence-transformers FAQ, JSON↔graph sync.
+* **0.4.0** ✅ — Gradio chat UI, Streamlit admin panel, Dockerfile + docker-compose, Hugging Face Space.
+* **0.5.0** ✅ — Eval harness with labelled datasets running in CI; MkDocs documentation site.
+
 
 ---
 

@@ -106,3 +106,33 @@ Initial public version. See git history for details.
 ### Changed
 - New `[web]` optional extra in `pyproject.toml` for the browser deps.
 - Dev extras now include gradio/streamlit/pyvis so CI exercises the web modules.
+
+## [0.5.0] - 2026-05-12
+
+### Added
+- **Evaluation harness** (`src/kgconvai/eval/`)
+  - Typed datasets: `IntentDataset`, `FAQDataset`, `IntentExample`, `FAQExample`.
+  - Runners with metrics: accuracy / P@1, P@3, mean reciprocal rank,
+    latency p50/p95/mean.
+  - Per-example outcomes captured (utterance, expected, top1, ranking),
+    serialisable to JSON.
+  - `rich`-formatted summary tables.
+- **CLI**: `kgconvai eval intents` and `kgconvai eval faq` with
+  `--classifier substring|embedding|zero_shot`, `--threshold`, `--json-out`.
+- **Labelled datasets** in `eval/`:
+  - `intents.yaml`: 44 utterances across 7 intent classes.
+  - `faq.yaml`: 18 paraphrased questions over 9 FAQ entries.
+- **GitHub Actions** `.github/workflows/eval.yml` — runs the eval on every
+  PR, uploads the metrics JSON, posts a comment with the table, and fails
+  the run if accuracy drops below threshold.
+- **MkDocs site** with `mkdocs-material` theme: home, quickstart,
+  installation, architecture (with Mermaid diagram), KG overview/schema/
+  backends, web interfaces, evaluation, plus 4 Architecture Decision
+  Records (TAO, KG abstraction, canonical JSON, embeddings vs NLI).
+- **GitHub Actions** `.github/workflows/docs.yml` — builds and deploys the
+  docs to GitHub Pages on push to main.
+- 13 new tests covering eval metrics, dataset loaders, and the runner.
+
+### Changed
+- `pyyaml` is now a base dependency (used by the eval-dataset loaders).
+- `[docs]` optional extra: `mkdocs-material` + `pymdown-extensions`.

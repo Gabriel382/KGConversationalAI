@@ -19,10 +19,17 @@ from kgconvai.dialogue.graph import DialogueGraph
 from kgconvai.web._graph_viz import render_graph_html
 
 
-def test_physics_is_disabled():
+def test_physics_default_is_on():
+    """Default render has physics animated (looks better)."""
     g = DialogueGraph.from_path(ROOT / "dialogue_graph" / "kg.json")
-    html = render_graph_html(g, current_state="start")
-    # HTML-escaped JSON inside the iframe srcdoc
+    html = render_graph_html(g, current_state="start")  # physics defaults to True
+    assert "&quot;enabled&quot;: true" in html or '"enabled": true' in html
+
+
+def test_physics_can_be_disabled():
+    """Visitors can untick the UI checkbox to freeze the layout."""
+    g = DialogueGraph.from_path(ROOT / "dialogue_graph" / "kg.json")
+    html = render_graph_html(g, current_state="start", physics=False)
     assert "&quot;enabled&quot;: false" in html or '"enabled": false' in html
 
 

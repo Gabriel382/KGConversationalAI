@@ -13,6 +13,8 @@ The result is a self-contained HTML string suitable for injection into
 
 from __future__ import annotations
 
+import html
+
 from kgconvai.dialogue.graph import DialogueGraph
 
 CURRENT_COLOR = "#f59e0b"  # amber-500
@@ -61,6 +63,15 @@ def render_graph_html(
     for from_state, intent, to_state in graph.edges():
         net.add_edge(from_state, to_state, label=intent, arrows="to")
 
-    # `generate_html` returns a full <html> document; wrap it for inline injection.
+    # PyVis returns a full <html> document with inline <script> tags that
+    # pull vis-network.js from a CDN. Gradio's gr.HTML strips/sanitises
+    # scripts, so render the network inside an <iframe srcdoc="..."> where
+    # those scripts can execute in their own isolated context.
     body = net.generate_html(notebook=False)
-    return body
+    escaped = html.escape(body, quote=True)
+    return (
+        f'<iframe srcdoc="{escaped}" '
+        f'style="width:100%;height:{height_px}px;border:0;'
+        f'border-radius:8px;background:#0f172a;" '
+        f'sandbox="allow-scripts allow-same-origin"></iframe>'
+    )

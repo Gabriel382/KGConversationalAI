@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "kgconvai"
-version = "0.5.0"
+version = "0.6.0"
 description = "Graph-driven voice agent with a Thought-Action-Observation control loop."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -104,7 +104,8 @@ select = ["E", "F", "W", "I", "B", "UP", "C4", "SIM", "RUF"]
 ignore = ["E501"]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["B011", "SIM117"]
+# Tests use pytest.importorskip() before imports, which trips E402.
+"tests/**" = ["B011", "SIM117", "E402"]
 "src/kgconvai/cli.py" = ["B008"]  # typer requires function calls in defaults
 
 [tool.ruff.format]

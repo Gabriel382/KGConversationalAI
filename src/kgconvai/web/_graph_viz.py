@@ -46,7 +46,20 @@ def render_graph_html(
         bgcolor="#0f172a",  # slate-900, matches dark Gradio themes
         font_color="#f1f5f9",
     )
-    net.toggle_physics(True)
+    # Disable the live force-directed physics simulation -- it burns CPU
+    # forever and the graph never reaches a stable layout, which made
+    # Firefox slow to a crawl on each turn. Use a deterministic seed so
+    # nodes stay in place across re-renders.
+    net.toggle_physics(False)
+    net.set_options("""
+    {
+      "interaction": {"hover": true, "navigationButtons": false, "zoomView": true},
+      "physics": {"enabled": false},
+      "layout": {"randomSeed": 42, "improvedLayout": true},
+      "nodes": {"shape": "dot", "borderWidth": 2},
+      "edges": {"smooth": {"type": "continuous"}, "color": {"color": "#475569"}}
+    }
+    """)
 
     for state_id in graph.states():
         if state_id == current_state:

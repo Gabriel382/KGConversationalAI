@@ -68,6 +68,14 @@ class DialogueGraph:
             labels.update(outgoing.keys())
         return sorted(labels)
 
+    def edges(self) -> list[tuple[str, str, str]]:
+        """Iterate the graph as ``(from_state, intent, to_state)`` tuples."""
+        return [
+            (from_state, intent, to_state)
+            for from_state, outgoing in self._transitions.items()
+            for intent, to_state in outgoing.items()
+        ]
+
     def transition(self, current_state: str, intent: str) -> ActionNode:
         """Resolve the next state, falling back to staying if no match."""
         outgoing = self._transitions.get(current_state, {})

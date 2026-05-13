@@ -100,7 +100,33 @@ class Agent:
         """Programmatic single-turn: skip ASR/TTS, return the reply string.
 
         Useful in tests and when embedding the agent in another application
-        (e.g. a chat UI).
+        (e.g. a chat UI). Convenience wrapper around :meth:`respond_with_trace`.
+        """
+        _, trace = self.respond_with_trace(user_text, session)
+        return trace.response
+
+    def respond_with_trace(
+        self,
+        user_text: str,
+        session: DialogueSession | None = None,
+        *,
+        llm_override: LLMGenerator | None = None,
+    ) -> tuple[DialogueSession, CycleResult]:
+        """Single programmatic turn that returns the full :class:`CycleResult`.
+
+        This is the entry point used by the Gradio chat UI so it can show
+        the user the intent, state transition, and source of the reply.
+
+        Args:
+            user_text: Raw user utterance.
+            session: Conversation state. A fresh ``DialogueSession`` is
+                created if ``None``.
+            llm_override: Temporarily use this LLM for this single turn
+                instead of ``self.llm`` (e.g. when a visitor pastes their
+                own API key in the web UI). The override is not persisted.
+
+        Returns:
+            ``(session, CycleResult)`` -- the mutated session and the trace.
         """
         if session is None:
             session = DialogueSession()
@@ -116,16 +142,23 @@ class Agent:
                 self.classifier,
                 confidence_threshold=self.settings.faq_confidence_threshold,
             )
+        llm_for_call = llm_override if llm_override is not None else self.llm
         response = generate_response(
             session,
             intent,
             action_node,
             knowledge,
             templates=self.templates,
-            llm=self.llm,
+            llm=llm_for_call,
         )
         session.add_agent_turn(response)
-        return response
+        return session, CycleResult(
+            user_text=user_text,
+            intent=intent,
+            next_state=action_node.next_state,
+            knowledge=knowledge,
+            response=response,
+        )
 
     def run(self) -> None:
         """Loop until the conversation reaches the 'end' state."""

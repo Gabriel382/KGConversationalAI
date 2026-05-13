@@ -1,13 +1,10 @@
 """Hugging Face Space entry point.
 
-This file is what HF Spaces runs. It builds the Gradio chat demo with the
-default canonical dialogue graph and launches it. To deploy:
+Builds the Gradio chat demo with the default canonical dialogue graph and
+launches it. Visitors can paste their own OpenRouter API key in the UI to
+get LLM-generated replies; the Space defaults to template mode otherwise.
 
-1. Create a new Space (SDK: Gradio).
-2. Copy the contents of this folder into the Space repo.
-3. Add the repo as a Git remote and push.
-
-See huggingface/README.md for the full deployment guide.
+To deploy: see huggingface/README.md.
 """
 
 from __future__ import annotations
@@ -21,6 +18,13 @@ DATA = Path(os.environ.get("KGCONVAI_DATA", "dialogue_graph/kg.json"))
 MODE = os.environ.get("KGCONVAI_LLM_MODE", "template")
 
 demo = build_chat(DATA, mode=MODE)
+# Disable the auto-generated API info / OpenAPI introspection so Gradio
+# doesn't trip over the schemas it derives from our Pydantic models.
+demo.queue(api_open=False)
 
 if __name__ == "__main__":
-    demo.launch(server_name="0.0.0.0", server_port=7860)
+    demo.launch(
+        server_name="0.0.0.0",
+        server_port=7860,
+        show_api=False,
+    )

@@ -204,3 +204,21 @@ Initial public version. See git history for details.
 - 13 new tests covering the iframe wrapping, the model fetcher (success,
   free-only filter, fallback on network error, key in header), and the
   three error paths.
+
+## [0.6.2] - 2026-05-13
+
+### Fixed
+- **PyVis dialogue-graph viz no longer melts Firefox.** The continuous
+  force-directed physics simulation has been disabled and the layout is
+  now seeded with `randomSeed: 42`, so nodes stay still and reproducible
+  across re-renders. CPU drops to ~0 between turns.
+
+## [0.6.3] - 2026-05-13
+
+### Changed
+- **Physics is back as a per-session toggle (default ON).** 0.6.2 had
+  disabled the PyVis force-directed simulation outright to keep Firefox
+  responsive. Now the simulation is on by default (it looks better) but
+  the chat UI exposes an "Animate graph (physics)" checkbox that
+  visitors can untick if they hit performance trouble. Toggling
+  re-renders the current graph in place immediately.

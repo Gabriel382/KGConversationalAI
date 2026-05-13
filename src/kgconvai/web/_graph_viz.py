@@ -28,6 +28,7 @@ def render_graph_html(
     current_state: str | None = None,
     visited_states: list[str] | None = None,
     height_px: int = 380,
+    physics: bool = True,
 ) -> str:
     """Return a self-contained HTML snippet that renders ``graph`` with
     the given state highlighted.
@@ -46,7 +47,24 @@ def render_graph_html(
         bgcolor="#0f172a",  # slate-900, matches dark Gradio themes
         font_color="#f1f5f9",
     )
-    net.toggle_physics(True)
+    # Physics is opt-out: animated by default (looks better), but visitors
+    # can untick the UI checkbox if it slows their browser down. Either way
+    # we seed the layout so node positions are stable across re-renders.
+    net.toggle_physics(physics)
+    if physics:
+        physics_block = '"physics": {"enabled": true, "stabilization": {"iterations": 200}}'
+    else:
+        physics_block = '"physics": {"enabled": false}'
+    net.set_options(
+        "{"
+        + '"interaction": {"hover": true, "navigationButtons": false, "zoomView": true},'
+        + physics_block
+        + ","
+        + '"layout": {"randomSeed": 42, "improvedLayout": true},'
+        + '"nodes": {"shape": "dot", "borderWidth": 2},'
+        + '"edges": {"smooth": {"type": "continuous"}, "color": {"color": "#475569"}}'
+        + "}"
+    )
 
     for state_id in graph.states():
         if state_id == current_state:

@@ -124,7 +124,7 @@ def build_chat(
 
     agent = _build_agent(data_path, mode)
     graph_obj = agent.dialogue.graph
-    initial_graph_html = render_graph_html(graph_obj, current_state="start")
+    initial_graph_html = render_graph_html(graph_obj, current_state="start", physics=True)
     model_catalogue = fetch_openrouter_models()
 
     def respond(
@@ -135,6 +135,7 @@ def build_chat(
         visited_states: list[str] | None,
         api_key: str,
         model_name: str,
+        physics_on: bool,
     ):
         if not message or not message.strip():
             # No-op: keep state intact, just clear the textbox
@@ -145,7 +146,10 @@ def build_chat(
                 trace_rows or [],
                 visited_states or [],
                 render_graph_html(
-                    graph_obj, current_state=current, visited_states=visited_states or []
+                    graph_obj,
+                    current_state=current,
+                    visited_states=visited_states or [],
+                    physics=physics_on,
                 ),
                 "",
             )
@@ -191,12 +195,20 @@ def build_chat(
             graph_obj,
             current_state=session_state.current_state,
             visited_states=visited,
+            physics=physics_on,
         )
 
         return history, session_state, trace_rows, visited, graph_html, ""
 
-    def reset(*_args):
-        return [], None, [], [], render_graph_html(graph_obj, current_state="start"), ""
+    def reset(physics_on: bool):
+        return (
+            [],
+            None,
+            [],
+            [],
+            render_graph_html(graph_obj, current_state="start", physics=physics_on),
+            "",
+        )
 
     with gr.Blocks(title=title) as demo:
         gr.Markdown(
@@ -259,6 +271,14 @@ def build_chat(
                     "state, <span style='color:#10b981'>**green**</span> = "
                     "visited, <span style='color:#94a3b8'>gray</span> = pending.",
                 )
+                physics_toggle = gr.Checkbox(
+                    label="Animate graph (physics)",
+                    value=True,
+                    info=(
+                        "Force-directed layout looks better but uses CPU. "
+                        "Untick if the page slows down."
+                    ),
+                )
                 graph_view = gr.HTML(value=initial_graph_html)
 
                 gr.Markdown("### Cycle trace")
@@ -283,6 +303,7 @@ def build_chat(
             visited_states,
             api_key,
             model_choice,
+            physics_toggle,
         ]
         submit_outputs = [
             chatbot,
@@ -296,8 +317,29 @@ def build_chat(
         msg.submit(respond, submit_inputs, submit_outputs)
         clear.click(
             reset,
-            [chatbot, session_state, trace_rows, visited_states],
+            [physics_toggle],
             [chatbot, session_state, trace_rows, visited_states, graph_view, msg],
+        )
+
+        # Toggling physics re-renders the current graph in place without
+        # advancing the dialogue, so the visitor sees the effect immediately.
+        def _toggle_physics(
+            physics_on: bool,
+            session: DialogueSession | None,
+            visited: list[str] | None,
+        ) -> str:
+            current = session.current_state if session else "start"
+            return render_graph_html(
+                graph_obj,
+                current_state=current,
+                visited_states=visited or [],
+                physics=physics_on,
+            )
+
+        physics_toggle.change(
+            _toggle_physics,
+            [physics_toggle, session_state, visited_states],
+            [graph_view],
         )
 
         # The dataframe needs to be re-rendered each call because gr.State alone

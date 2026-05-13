@@ -71,3 +71,18 @@ def test_chatbot_uses_messages_format_when_kwarg_supported():
     # When the kwarg is supported, kgconvai sets it to "messages"
     cb = chatbots[0]
     assert getattr(cb, "type", "messages") == "messages"
+
+
+def test_chat_includes_physics_toggle_default_on():
+    """The UI exposes a Checkbox so visitors can disable the graph animation."""
+    from kgconvai.web.chat import build_chat
+
+    demo = build_chat(ROOT / "dialogue_graph" / "kg.json", mode="template")
+    checkboxes = [b for b in demo.blocks.values() if b.__class__.__name__ == "Checkbox"]
+    assert checkboxes, "Expected a physics Checkbox in the chat UI"
+    # Default value is True (physics on)
+    cb = checkboxes[0]
+    assert getattr(cb, "value", True) is True
+    # Label mentions what it controls
+    label = (getattr(cb, "label", "") or "").lower()
+    assert "physic" in label or "animate" in label

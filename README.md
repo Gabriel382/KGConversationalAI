@@ -7,11 +7,12 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![Type checked: mypy](https://img.shields.io/badge/type%20checked-mypy-1f5082.svg)](https://mypy.readthedocs.io/)
+[![Hugging Face Space](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Try%20it-blue)](https://huggingface.co/spaces/Gabriel382/kgconvai-demo)
 
 > **A modular conversational AI agent that runs over a real knowledge graph, with a Thought–Action–Observation control loop.**
 > Voice in, voice out, fully offline if you want it. Backed by RDF/OWL and Neo4j, with a Gradio chat demo and a Streamlit admin panel for editing the graph visually.
 
-📖 **[Documentation](https://gabriel382.github.io/KGConversationalAI/)** &nbsp;·&nbsp; 🤗 **HF Space** *(coming soon — deploy from `huggingface/`)* &nbsp;·&nbsp; 🐛 **[Issues](https://github.com/Gabriel382/KGConversationalAI/issues)**
+📖 **[Documentation](https://gabriel382.github.io/KGConversationalAI/)** &nbsp;·&nbsp; 🤗 **[Try it on Hugging Face](https://huggingface.co/spaces/Gabriel382/kgconvai-demo)** &nbsp;·&nbsp; 🐛 **[Issues](https://github.com/Gabriel382/KGConversationalAI/issues)**
 
 ---
 
@@ -116,6 +117,8 @@ python -m kgconvai web chat --mode api
 ```
 
 Opens at `http://localhost:7860`. Each browser tab keeps its own `DialogueSession`, so multiple visitors hold independent conversations on the same server.
+
+The right column shows a live **PyVis dialogue-graph visualisation** (current state amber, visited states green) and a **cycle trace table** with each turn's intent, state transition, and response source. Edit `dialogue_graph/kg.json` and the agent picks up the changes on the next conversation.
 
 ### Edit the knowledge graph visually
 
@@ -356,7 +359,8 @@ Copy `.env.example` to `.env` for local development; `.env` is git-ignored.
 | 0.3.0 ✅ | Canonical schema + OWL ontology + rdflib + Neo4j + embeddings |
 | 0.4.0 ✅ | Gradio chat + Streamlit admin + Dockerfile + HF Space scaffold |
 | 0.5.0 ✅ | Labelled eval harness in CI + MkDocs docs site                |
-| 0.6.0 — | Live HF Space deploy + demo GIF + intent-classifier fine-tune |
+| 0.6.0 ✅ | Trace panel + dialogue-graph viz + BYO OpenRouter key + Gradio 5 |
+| 0.7.0 — | Demo GIF + intent-classifier fine-tune + memory layer        |
 
 Architecture decisions are documented as [ADRs](https://gabriel382.github.io/KGConversationalAI/adr/) in the docs site.
 

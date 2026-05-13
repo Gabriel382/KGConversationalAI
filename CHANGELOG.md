@@ -136,3 +136,46 @@ Initial public version. See git history for details.
 ### Changed
 - `pyyaml` is now a base dependency (used by the eval-dataset loaders).
 - `[docs]` optional extra: `mkdocs-material` + `pymdown-extensions`.
+
+## [0.6.0] - 2026-05-13
+
+### Added
+- **`Agent.respond_with_trace()`** returns the full `CycleResult` (intent,
+  next_state, knowledge, response) alongside the mutated session. Powers
+  the new trace UI without duplicating logic. The original `respond()` is
+  now a thin wrapper around it.
+- **`llm_override`** keyword on `respond_with_trace()` lets callers supply
+  a per-call LLM (used by the BYO-key flow) without mutating the agent.
+- **PyVis dialogue-graph visualisation** in the chat UI. The current state
+  is amber, visited states green, unvisited gray; updates after every turn.
+- **Cycle trace table** in the chat UI listing turn #, intent, state
+  transition, retrieved knowledge (truncated), and source
+  (`template` / `default` / `openrouter`).
+- **BYO OpenRouter key** — a collapsed "Use my own OpenRouter LLM"
+  accordion in the chat UI with a password-style textbox and model
+  dropdown. The key lives in `gr.State` for the session only, is never
+  logged, and is never persisted. When present, that session's responses
+  go through `OpenRouterLLM` instead of the default backend.
+- 12 new tests covering trace, BYO-key, graph rendering, and the
+  Gradio version-tolerant Chatbot construction.
+
+### Changed
+- `chat.py` rebuilt with a two-column layout: chat + BYO-key on the
+  left, graph viz + trace table on the right.
+- `gr.State` components no longer carry default values so Gradio's
+  schema introspection can't trip on `DialogueSession`.
+- The Chatbot is constructed with `type="messages"` when the kwarg is
+  supported by the installed Gradio (4.x / 5.x), and without it on 6.x
+  where messages is the default.
+- `huggingface/app.py` calls `demo.queue(api_open=False)` and
+  `demo.launch(show_api=False)` to disable the OpenAPI introspection
+  endpoint that previously crashed on Pydantic-derived schemas.
+- `huggingface/` bumped to `sdk_version: 5.49.0`; dropped the
+  `huggingface_hub<1.0` pin (Gradio 5 supports HF Hub 1.x).
+
+### Fixed
+- Gradio 5 startup crash on Hugging Face Spaces caused by
+  `gradio_client.utils.get_type` not handling boolean JSON schema values
+  emitted by Pydantic-derived component schemas.
+- Chat history "Data incompatible with tuples format" error in Gradio
+  5 — Chatbot now correctly declares `type="messages"`.

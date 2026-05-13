@@ -179,3 +179,28 @@ Initial public version. See git history for details.
   emitted by Pydantic-derived component schemas.
 - Chat history "Data incompatible with tuples format" error in Gradio
   5 — Chatbot now correctly declares `type="messages"`.
+
+## [0.6.1] - 2026-05-13
+
+### Fixed
+- **Dialogue graph viz now actually renders.** PyVis writes a full HTML
+  document with inline `<script>` tags that Gradio's `gr.HTML` was
+  stripping. The viz is now wrapped in an `<iframe srcdoc="...">` so the
+  PyVis scripts execute in their own sandboxed context.
+- **Stale OpenRouter model names.** The dropdown was hardcoded to
+  `deepseek/deepseek-v3-base:free` which no longer exists, producing 404s.
+
+### Added
+- **Live OpenRouter model catalogue.** `src/kgconvai/web/_openrouter_models.py`
+  fetches the full model list from `https://openrouter.ai/api/v1/models` at
+  Space startup and populates the dropdown with all available models. Falls
+  back to a known-working set when the network is unavailable.
+- **"Refresh model list" button.** Re-fetches with the visitor's pasted key,
+  so the dropdown reflects models accessible to their account.
+- **Helpful error messages from `OpenRouterLLM`.** 429 / 401 / 404 responses
+  now produce specific in-chat messages ("rate-limit reached", "API key
+  rejected", "model not found: …") instead of the generic "couldn't
+  generate a response right now."
+- 13 new tests covering the iframe wrapping, the model fetcher (success,
+  free-only filter, fallback on network error, key in header), and the
+  three error paths.

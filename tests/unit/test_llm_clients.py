@@ -60,4 +60,4 @@ def test_openrouter_generate_success(monkeypatch):
 def test_openrouter_generate_handles_empty_choices(monkeypatch):
     monkeypatch.setattr(requests, "post", lambda *a, **kw: _FakeResp({"choices": []}))
     out = OpenRouterLLM(api_key="sk-test").generate([{"role": "user", "content": "hi"}])
-    assert "couldn't generate" in out.lower()
+    assert "llm call failed" in out.lower() or "no 'choices'" in out.lower()

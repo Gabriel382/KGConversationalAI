@@ -54,6 +54,31 @@ class OpenRouterLLM(LLMGenerator):
             r = requests.post(
                 self.url, headers=self._headers(), json=payload, timeout=self.timeout_s
             )
+            status = r.status_code
+            if status == 429:
+                log.warning("llm.openrouter.rate_limited", status=status)
+                return (
+                    "_(OpenRouter rate-limit reached on the free tier - try "
+                    "again in a minute, or pick a paid model.)_"
+                )
+            if status == 401:
+                log.warning("llm.openrouter.unauthorized", status=status)
+                return (
+                    "_(OpenRouter rejected the API key. Generate a fresh one at "
+                    "https://openrouter.ai/keys.)_"
+                )
+            if status == 404:
+                # Most often: the requested model id no longer exists.
+                log.warning(
+                    "llm.openrouter.not_found",
+                    status=status,
+                    model=model or self.default_model,
+                )
+                return (
+                    "_(OpenRouter doesn't know the model "
+                    f"`{model or self.default_model}`. Try a different one "
+                    "from the dropdown.)_"
+                )
             r.raise_for_status()
             data = r.json()
             choices = data.get("choices") or []
@@ -62,4 +87,4 @@ class OpenRouterLLM(LLMGenerator):
             return str(choices[0]["message"]["content"]).strip()
         except (requests.RequestException, ValueError, KeyError) as exc:
             log.warning("llm.openrouter.error", err=str(exc))
-            return "Sorry, I couldn't generate a response right now."
+            return f"_(LLM call failed: {exc!s})_"

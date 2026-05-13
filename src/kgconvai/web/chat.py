@@ -27,17 +27,16 @@ from kgconvai.logging import get_logger
 from kgconvai.nlu.faq import FAQStore
 from kgconvai.state import DialogueSession
 from kgconvai.web._graph_viz import render_graph_html
+from kgconvai.web._openrouter_models import FALLBACK_MODELS, fetch_openrouter_models
 
 if TYPE_CHECKING:  # pragma: no cover
     pass
 
 log = get_logger(__name__)
 
-DEFAULT_OPENROUTER_MODELS = [
-    "deepseek/deepseek-v3-base:free",
-    "deepseek/deepseek-r1-zero:free",
-    "meta-llama/llama-3.2-3b-instruct:free",
-]
+# Models are fetched live from OpenRouter at startup; this is just the
+# fallback used if the network call fails.
+DEFAULT_OPENROUTER_MODELS: list[str] = FALLBACK_MODELS
 
 
 def _build_agent(data_path: Path, mode: str):
@@ -110,7 +109,7 @@ def _build_byo_llm(api_key: str | None, model: str | None):
 
     return OpenRouterLLM(
         api_key=api_key.strip(),
-        default_model=(model or DEFAULT_OPENROUTER_MODELS[0]).strip(),
+        default_model=((model or FALLBACK_MODELS[0]) or FALLBACK_MODELS[0]).strip(),
     )
 
 
@@ -126,6 +125,7 @@ def build_chat(
     agent = _build_agent(data_path, mode)
     graph_obj = agent.dialogue.graph
     initial_graph_html = render_graph_html(graph_obj, current_state="start")
+    model_catalogue = fetch_openrouter_models()
 
     def respond(
         message: str,
@@ -241,10 +241,15 @@ def build_chat(
                     )
                     model_choice = gr.Dropdown(
                         label="Model",
-                        choices=DEFAULT_OPENROUTER_MODELS,
-                        value=DEFAULT_OPENROUTER_MODELS[0],
+                        choices=model_catalogue,
+                        value=model_catalogue[0] if model_catalogue else None,
                         allow_custom_value=True,
+                        info=(
+                            f"{len(model_catalogue)} models from OpenRouter. "
+                            "Free models end in ':free'."
+                        ),
                     )
+                    refresh_models = gr.Button("Refresh model list", size="sm", variant="secondary")
 
             # ------- RIGHT: graph viz + trace table --------------------------
             with gr.Column(scale=2):
@@ -301,5 +306,13 @@ def build_chat(
             return rows or []
 
         trace_rows.change(_sync_trace_table, [trace_rows], [trace_table])
+
+        # Refresh the model dropdown using the visitor's own key (their
+        # account may have access to private models or different free-tier).
+        def _refresh_models(key: str):
+            models = fetch_openrouter_models(api_key=key)
+            return gr.update(choices=models, value=models[0] if models else None)
+
+        refresh_models.click(_refresh_models, [api_key], [model_choice])
 
     return demo
